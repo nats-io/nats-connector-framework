@@ -1,5 +1,5 @@
 # nats-connector
-A pluggable service to bridge NATS and other technologies
+A pluggable service to bridge NATS with other technologies
 
 ## Work in Progress
 Code here is prototype/experimental code, incomplete, and not ready for public consumption.  Feel free to browse, but using this right now would not be a good idea.
