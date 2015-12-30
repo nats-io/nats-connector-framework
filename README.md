@@ -13,5 +13,5 @@ git clone git@github.com:nats-io/nats-connector.git .
 To build the library, use [maven](https://maven.apache.org/). From the root directory of the project:
 
 ```
-mvn clean install
+mvn clean package
 ```
