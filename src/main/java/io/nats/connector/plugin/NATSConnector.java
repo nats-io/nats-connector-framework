@@ -24,26 +24,32 @@ public interface NATSConnector {
 
     /***
      * Flushes any pending NATS data.
+     *
+     * @throws  Exception
      */
     public void flush() throws Exception;
 
     /***
      * Adds interest in a NATS subject.
+     * @throws Exception
      */
     public void subscribe(String subject) throws Exception;
 
     /***
      * Adds interest in a NATS subject, with a custom handler.
+     * @throws Exception
      */
     public void subscribe(String subject, MessageHandler handler) throws Exception;
 
     /***
      * Adds interest in a NATS subject with a queue group.
+     * @throws Exception
      */
     public void subscribe(String subject, String queue) throws Exception;
 
     /***
      * Adds interest in a NATS subject with a queue group, with a custom handler.
+     * @throws Exception
      */
     public void subscribe(String subject, String queue, MessageHandler handler) throws Exception;
 
@@ -55,11 +61,15 @@ public interface NATSConnector {
 
     /***
      * Advanced API to get the NATS connection
+     *
+     * @return The connection to the NATS cluster.
      */
     public Connection getConnection();
 
     /***
      * Advanced API to get the Connection Factory
+     *
+     * @return The NATS connector ConnectionFactory
      */
     public ConnectionFactory getConnectionFactory();
 
