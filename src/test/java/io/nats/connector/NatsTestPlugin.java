@@ -1,21 +1,22 @@
-package io.nats.connector.test;
+package io.nats.connector;
+
+import io.nats.client.Message;
+import io.nats.connector.plugin.NATSConnector;
+import io.nats.connector.plugin.NATSConnectorPlugin;
+import io.nats.connector.plugin.NATSEvent;
+import org.slf4j.Logger;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import io.nats.client.Message;
-import io.nats.connector.plugins.NATSConnector;
-import io.nats.connector.plugins.NATSConnectorPlugin;
-import io.nats.connector.plugins.NATSEvent;
-import org.slf4j.Logger;
-
 /**
- * Created by colinsullivan on 12/16/15.
+ * Created by colinsullivan on 12/30/15.
  */
-public class TestPlugin implements NATSConnectorPlugin {
-
+public class NatsTestPlugin implements NATSConnectorPlugin  {
     NATSConnector connector = null;
     Logger logger = null;
+
+    public NatsTestPlugin() {}
 
     class PeriodicSender implements Runnable
     {
@@ -122,21 +123,25 @@ public class TestPlugin implements NATSConnectorPlugin {
         }
     }
 
+    @Override
     public void OnNATSEvent(NATSEvent event, String message)
     {
         switch (event)
         {
             case ASYNC_ERROR:
-                logger.error("Received async error:" + message);
+                logger.error("NATS Event Async error: " + message);
                 break;
             case RECONNECTED:
-                logger.info("Reconnected.");
+                logger.info("NATS Event Reconnected: " + message);
                 break;
             case DISCONNECTED:
-                logger.info("Disconnected.");
+                logger.info("NATS Event Disconnected: " + message);
+                break;
+            case CLOSED:
+                logger.info("NATS Event Closed: " + message);
                 break;
             default:
+                logger.info("NATS Event Unrecognized event: " + message);
         }
-
     }
 }

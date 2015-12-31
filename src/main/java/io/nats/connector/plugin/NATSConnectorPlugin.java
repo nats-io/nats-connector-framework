@@ -1,8 +1,6 @@
-package io.nats.connector.plugins;
+package io.nats.connector.plugin;
 
-import java.util.Properties;
 import org.slf4j.Logger;
-import io.nats.client.ConnectionFactory;
 
 /**
  * Created by colinsullivan on 12/16/15.

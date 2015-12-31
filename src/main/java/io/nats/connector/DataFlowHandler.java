@@ -1,14 +1,14 @@
 package io.nats.connector;
 
 import io.nats.client.*;
-import io.nats.connector.plugins.NATSConnector;
-import io.nats.connector.plugins.NATSConnectorPlugin;
+import io.nats.connector.plugin.NATSConnector;
+import io.nats.connector.plugin.NATSConnectorPlugin;
 
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import io.nats.connector.plugins.NATSEvent;
+import io.nats.connector.plugin.NATSEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +49,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
         public void onReconnect(ConnectionEvent event)
         {
             try {
-                String desc = "NATS Connection closed.";
+                String desc = "NATS Connection reconnected.";
                 plugin.OnNATSEvent(NATSEvent.RECONNECTED, desc);
             }
             catch (Exception e) {
@@ -110,9 +110,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
         // own callbacks in the plugin if need be.
         invokeOnStartup();
 
-        connection = new io.nats.client.ConnectionFactory(properties).
-                createConnection();
-
+        connection = connectionFactory.createConnection();
         logger.debug("Connected to NATS cluster.");
     }
 

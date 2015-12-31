@@ -1,6 +1,4 @@
-package io.nats.connector.plugins;
-
-import java.util.Properties;
+package io.nats.connector.plugin;
 
 import io.nats.client.Connection;
 import io.nats.client.ConnectionFactory;
