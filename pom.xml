@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.nats</groupId>
-    <artifactId>connector</artifactId>
+    <artifactId>nats-connector</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <name>jnats</name>
+    <name>nats-connector</name>
     <description>Data Connector for NATS Messaging System</description>
-    <url>https://github.com/nats-io/connector</url>
+    <url>https://github.com/nats-io/nats-connector</url>
     <inceptionYear>2015</inceptionYear>
 
     <properties>
@@ -46,7 +46,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.5</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -175,9 +174,9 @@
                             <failOnError>true</failOnError>
                             <show>public</show>
                             <nohelp>true</nohelp>
-                            <header>jnats ${project.version}</header>
-                            <footer>jnats ${project.version}</footer>
-                            <doctitle>jnats ${project.version}</doctitle>
+                            <header>nats-connector ${project.version}</header>
+                            <footer>nats-connector ${project.version}</footer>
+                            <doctitle>nats-connector ${project.version}</doctitle>
                         </configuration>
                     </execution>
                 </executions>
@@ -192,7 +191,7 @@
                         ${project.artifactId}:${project.version}</checkinComment>
                     <content>${project.reporting.outputDirectory}/apidocs</content>
                     <skipDeletedFiles>true</skipDeletedFiles>
-                    <pubScmUrl>scm:git:git@github.com:nats-io/jnats.git</pubScmUrl>
+                    <pubScmUrl>scm:git:git@github.com:nats-io/nats-connector.git</pubScmUrl>
                     <scmBranch>gh-pages</scmBranch> <!-- branch with static site -->
                 </configuration>
             </plugin>
@@ -224,7 +223,7 @@
     </build>
 
     <issueManagement>
-        <url>https://github.com/nats-io/jnats/issues/</url>
+        <url>https://github.com/nats-io/nats-connector/issues/</url>
         <system>GitHub Issues</system>
     </issueManagement>
 
@@ -237,9 +236,9 @@
     </licenses>
 
     <scm>
-        <url>https://github.com/nats-io/jnats</url>
-        <connection>scm:git:git://github.com/nats-io/jnats.git</connection>
-        <developerConnection>scm:git:git@github.com:nats-io/jnats.git</developerConnection>
+        <url>https://github.com/nats-io/nats-connector</url>
+        <connection>scm:git:git://github.com/nats-io/nats-connector.git</connection>
+        <developerConnection>scm:git:git@github.com:nats-io/nats-connector.git</developerConnection>
     </scm>
 
     <organization>
@@ -267,7 +266,7 @@
 
     <ciManagement>
         <system>Travis</system>
-        <url>https://travis-ci.org/nats-io/jnats/</url>
+        <url>https://travis-ci.org/nats-io/nats-connector/</url>
     </ciManagement>
 
     <mailingLists>

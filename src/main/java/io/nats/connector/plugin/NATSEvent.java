@@ -1,4 +1,4 @@
-package io.nats.connector.plugins;
+package io.nats.connector.plugin;
 
 /**
  * Created by colinsullivan on 12/16/15.

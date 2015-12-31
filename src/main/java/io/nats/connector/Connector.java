@@ -1,6 +1,6 @@
 package io.nats.connector;
 
-import io.nats.connector.plugins.NATSConnectorPlugin;
+import io.nats.connector.plugin.NATSConnectorPlugin;
 
 import java.util.*;
 
@@ -41,8 +41,12 @@ public class Connector implements Runnable
     NATSConnectorPlugin plugin = null;
     Properties          gwProps = null;
     String              configFile = null;
+    DataFlowHandler     flowHandler = null;
 
-    private NATSConnectorPlugin loadPlugin(String className)
+
+    private NATSConnectorPlugin loadPlugin(String className) throws
+            ClassNotFoundException, InstantiationException,
+            IllegalAccessException
     {
         logger.debug("Loading plugin: " + className);
 
@@ -52,22 +56,21 @@ public class Connector implements Runnable
         catch (ClassNotFoundException cnfe) {
             logger.error("Unable to find class " + className);
             logger.debug("Exception: ", cnfe);
+            throw cnfe;
         }
         catch (InstantiationException ie)
         {
             logger.error("Unable to instantiate class " + className);
             logger.debug("Exception: ", ie);
+            throw ie;
         }
         catch (IllegalAccessException iae)
         {
             logger.error("Illegal access of class " + className);
             logger.debug("Exception: ", iae);
+            throw iae;
         }
-
-        return null;
     }
-
-    DataFlowHandler flowHandler = null;
 
     @Override
     public void run()

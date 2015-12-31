@@ -1,8 +1,6 @@
-package io.nats.connector.plugins;
+package io.nats.connector.plugin;
 
-import java.util.Properties;
 import org.slf4j.Logger;
-import io.nats.client.ConnectionFactory;
 
 /**
  * Created by colinsullivan on 12/16/15.
@@ -37,7 +35,7 @@ public interface NATSConnectorPlugin {
      * and sending messages.  Subscribe and publish calls can be
      * made after this call is invoked.
      *
-     * @param connector
+     * @param connector interface to the NATS connector
      *
      * @return true if the plugin can continue.
      */
@@ -45,7 +43,7 @@ public interface NATSConnectorPlugin {
 
     /**
      * Invoked anytime a NATS message is received to be processed.
-     * @param msg - NATS message recieved.
+     * @param msg - NATS message received.
      */
     public void OnNATSMessage(io.nats.client.Message msg);
 
@@ -56,8 +54,8 @@ public interface NATSConnectorPlugin {
      * For example, when reconnecting, buffer or pause incoming
      * data to be sent to NATS.
      *
-     * @param event
-     * @param message
+     * @param event the type of event
+     * @param message a string describing the event
      */
     public void OnNATSEvent(NATSEvent event, String message);
 }
