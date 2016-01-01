@@ -8,18 +8,11 @@ import org.slf4j.Logger;
 public interface NATSConnectorPlugin {
 
     /**
-     * Gets the name of this plugin for logging purposes.
+     * Invoked when the connector is started up, before a connection
+     * to the NATS cluster is made.  The NATS connection factory is
+     * valid at this time, providing an opportunity to alter
+     * connection parameters based on other plugin variables.
      *
-     * If null is returned, then the class
-     * name is used.
-     *
-     * @return Name of the plug-in.
-     */
-    public String  getName();
-
-    /**
-     * Invoked when the connector is started up.
-    *
      * @param logger - logger for the NATS connector process.
      * @return - true if the connector should continue, false otherwise.
      */

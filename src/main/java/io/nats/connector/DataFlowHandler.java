@@ -108,7 +108,9 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
 
         // invoke on startup here, so the user can override or set their
         // own callbacks in the plugin if need be.
-        invokeOnStartup();
+        if (invokeOnStartup() == false) {
+            shutdown();
+        }
 
         connection = connectionFactory.createConnection();
         logger.debug("Connected to NATS cluster.");
@@ -160,11 +162,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
         logger.debug("OnStartup");
         try
         {
-            String name = plugin.getName();
-            if (name == null)
-                name = plugin.getClass().getName();
-
-            return plugin.OnStartup(LoggerFactory.getLogger(name));
+            return plugin.OnStartup(LoggerFactory.getLogger(plugin.getClass().getName()));
         }
         catch (Exception e)
         {
@@ -223,7 +221,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
             return;
         }
 
-        logger.info("The NATS Connector running.");
+        logger.info("The NATS Connector is running.");
 
         isRunning.set(true);
 
@@ -297,8 +295,6 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
 
     public void shutdown()
     {
-        Message m = new Message("foo", "bar", "hello".getBytes());
-        this.connection.publish(m);
         if (isRunning.get() == false)
             return;
 

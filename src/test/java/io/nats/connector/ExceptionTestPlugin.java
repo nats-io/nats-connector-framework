@@ -62,12 +62,6 @@ public class ExceptionTestPlugin implements NATSConnectorPlugin  {
     }
 
     @Override
-    public String getName()
-    {
-        throw new RuntimeException("Exception from getName");
-    }
-
-    @Override
     public boolean OnStartup(Logger logger) {
         this.logger = logger;
         throw new RuntimeException("Exception from OnStartup");

@@ -60,12 +60,6 @@ public class NatsTestPlugin implements NATSConnectorPlugin  {
     }
 
     @Override
-    public String getName()
-    {
-        return "NATS Test Plugin";
-    }
-
-    @Override
     public boolean OnStartup(Logger logger) {
         this.logger = logger;
         return true;
