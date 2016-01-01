@@ -34,7 +34,10 @@ import java.io.FileInputStream;
  */
 public class Connector implements Runnable
 {
-    static final String USER_PROP_PLUGIN_CLASS = "com.io.nats.connector.plugin";
+    /**
+     * Name of the property to set the plugin class name.
+     */
+    static public final String USER_PROP_PLUGIN_CLASS = "com.io.nats.connector.plugin";
 
     static final Logger logger = LoggerFactory.getLogger(Connector.class);
 
