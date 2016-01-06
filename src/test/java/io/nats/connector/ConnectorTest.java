@@ -1,3 +1,5 @@
+// Copyright 2015 Apcera Inc.  All Rights Reserved.
+
 package io.nats.connector;
 
 import org.junit.Test;
