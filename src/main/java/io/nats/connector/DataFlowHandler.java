@@ -1,3 +1,5 @@
+// Copyright 2015 Apcera Inc.  All Rights Reserved.
+
 package io.nats.connector;
 
 import io.nats.client.*;
@@ -29,7 +31,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
     private Object cleanupLock = new Object();
     private boolean hasCleanedUp = false;
 
-    // TODO eval - this for performance
+    // TODO eval - this for performance - preoptimization is evil.
     private AtomicBoolean     isRunning   = new AtomicBoolean();
 
     private ConnectionFactory connectionFactory = null;
@@ -50,6 +52,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
         {
             try {
                 String desc = "NATS Connection reconnected.";
+                logger.info(desc);
                 plugin.OnNATSEvent(NATSEvent.RECONNECTED, desc);
             }
             catch (Exception e) {
@@ -60,9 +63,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
         public void onClose(ConnectionEvent event)
         {
             try {
-                String desc = "NATS Connection closed.";
-                logger.debug(desc);
-                plugin.OnNATSEvent(NATSEvent.CLOSED, desc);
+                plugin.OnNATSEvent(NATSEvent.CLOSED, "NATS Connection closed.");
             }
             catch (Exception e) {
                 logger.error("Runtime exception in plugin method OnNATSEvent (CLOSED): ", e);
@@ -86,7 +87,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
             try {
 
                 String desc = "NATS Connection disconnected.";
-                logger.debug(desc);
+                logger.info(desc);
 
                 plugin.OnNATSEvent(NATSEvent.DISCONNECTED, desc);
             }
@@ -96,7 +97,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
         }
     }
 
-    private void setupNats() throws Exception
+    private void setup() throws Exception
     {
         connectionFactory = new ConnectionFactory(properties);
         EventHandlers eh = new EventHandlers();
@@ -110,13 +111,14 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
         // own callbacks in the plugin if need be.
         if (invokeOnStartup() == false) {
             shutdown();
+            throw new Exception("Startup failure initiated From plug-in");
         }
 
         connection = connectionFactory.createConnection();
         logger.debug("Connected to NATS cluster.");
     }
 
-    private void teardownNats()
+    private void teardown()
     {
         try
         {
@@ -206,17 +208,17 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
 
         try {
             // connect to the NATS cluster
-            setupNats();
+            setup();
         }
         catch (Exception e) {
-            logger.error("NATS error: ", e);
+            logger.error("Setup error: ", e);
             cleanup();
             return;
         }
 
         if (!invokeOnNatsInitialized())
         {
-            logger.error("Plugin () failed to start.  Exiting.");
+            logger.error("Plugin failed to start.  Exiting.");
             cleanup();
             return;
         }
@@ -256,7 +258,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
 
             // we are shutting down.
             invokePluginShutdown();
-            teardownNats();
+            teardown();
 
             hasCleanedUp = true;
         }
@@ -336,6 +338,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
     }
 
     public void subscribe(String subject, String queue, MessageHandler handler) throws Exception {
+
         if (subject == null || queue == null)
             return;
 

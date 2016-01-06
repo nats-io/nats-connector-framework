@@ -1,3 +1,5 @@
+// Copyright 2015 Apcera Inc.  All Rights Reserved.
+
 package io.nats.connector;
 
 import io.nats.connector.plugin.NATSConnectorPlugin;
@@ -8,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
+
 
 /**
  * This is the main connector class for the NATS Connector.
