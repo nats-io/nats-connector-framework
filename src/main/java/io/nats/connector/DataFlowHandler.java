@@ -109,7 +109,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
 
         // invoke on startup here, so the user can override or set their
         // own callbacks in the plugin if need be.
-        if (invokeOnStartup() == false) {
+        if (invokeOnStartup(connectionFactory) == false) {
             shutdown();
             throw new Exception("Startup failure initiated From plug-in");
         }
@@ -158,13 +158,13 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
         }
     }
 
-    private boolean invokeOnStartup()
+    private boolean invokeOnStartup(ConnectionFactory factory)
     {
 
         logger.debug("OnStartup");
         try
         {
-            return plugin.OnStartup(LoggerFactory.getLogger(plugin.getClass().getName()));
+            return plugin.OnStartup(LoggerFactory.getLogger(plugin.getClass().getName()), factory);
         }
         catch (Exception e)
         {

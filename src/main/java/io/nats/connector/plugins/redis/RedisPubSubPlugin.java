@@ -2,6 +2,7 @@
 
 package io.nats.connector.plugins.redis;
 
+import io.nats.client.ConnectionFactory;
 import io.nats.client.Message;
 import io.nats.connector.plugin.NATSConnector;
 import io.nats.connector.plugin.NATSConnectorPlugin;
@@ -66,7 +67,7 @@ import java.util.Map.Entry;
  */
 public class RedisPubSubPlugin implements NATSConnectorPlugin  {
 
-    static public final String CONFIG_URL = "nats.io.connector.redispubsub.configurl";
+    static public final String CONFIG_URL = "nats.io.connector.plugins.redispubsub.configurl";
 
     static public final String DEFAULT_REDIS_HOST = "localhost";
     static public final int DEFAULT_REDIS_PORT = 6379;
@@ -373,7 +374,7 @@ public class RedisPubSubPlugin implements NATSConnectorPlugin  {
     }
 
     @Override
-    public boolean OnStartup(Logger logger) {
+    public boolean OnStartup(Logger logger, ConnectionFactory factory) {
         this.logger = logger;
 
         try {

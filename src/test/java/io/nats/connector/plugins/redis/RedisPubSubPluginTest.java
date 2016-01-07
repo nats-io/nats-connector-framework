@@ -19,8 +19,6 @@ import java.util.concurrent.Executors;
  */
 public class RedisPubSubPluginTest {
 
-
-
     static final int TESTCOUNT = 5;
     static final String REDIS_PAYLOAD = "Hello from Redis!";
     static final String NATS_PAYLOAD = "Hello from NATS!";
@@ -31,10 +29,10 @@ public class RedisPubSubPluginTest {
 
     public void testRun() throws Exception {
 
-        System.setProperty("org.slf4j.simpleLogger.log.io.nats.connector.plugins.redis.RedisPubSubPluginTest", "debug");
+        System.setProperty("org.slf4j.simpleLogger.log.io.nats.connector.plugins.redis.RedisPubSubPluginTest", "trace");
 
         System.setProperty(Connector.USER_PROP_PLUGIN_CLASS, RedisPubSubPlugin.class.getName());
-        System.setProperty("org.slf4j.simpleLogger.log.io.nats.connector.plugins.redis.RedisPubSubPlugin", "debug");
+        System.setProperty("org.slf4j.simpleLogger.log.io.nats.connector.plugins.redis.RedisPubSubPlugin", "trace");
         //System.setProperty("org.slf4j.simpleLogger.log.io.nats.client", "trace");
         //System.setProperty(RedisPubSubPlugin.CONFIG_URL, "file:///Users/colinsullivan/redis_nats_connector.json");
 
@@ -60,7 +58,7 @@ public class RedisPubSubPluginTest {
         @Override
         public void onMessage(String channel, String message)
         {
-            logger.trace("Redis Client:  Received message: {}", message);
+            logger.debug("Redis Client:  Received message: {}", message);
 
             Assert.assertTrue(NATS_PAYLOAD.equals(message));
 

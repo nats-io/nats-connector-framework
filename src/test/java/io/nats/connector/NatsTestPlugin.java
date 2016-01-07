@@ -3,6 +3,7 @@
 package io.nats.connector;
 
 import io.nats.client.Message;
+import io.nats.client.ConnectionFactory;
 import io.nats.connector.plugin.NATSConnector;
 import io.nats.connector.plugin.NATSConnectorPlugin;
 import io.nats.connector.plugin.NATSEvent;
@@ -62,7 +63,7 @@ public class NatsTestPlugin implements NATSConnectorPlugin  {
     }
 
     @Override
-    public boolean OnStartup(Logger logger) {
+    public boolean OnStartup(Logger logger, ConnectionFactory factory) {
         this.logger = logger;
         return true;
     }
