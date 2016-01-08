@@ -53,7 +53,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
             try {
                 String desc = "NATS Connection reconnected.";
                 logger.info(desc);
-                plugin.OnNATSEvent(NATSEvent.RECONNECTED, desc);
+                plugin.onNATSEvent(NATSEvent.RECONNECTED, desc);
             }
             catch (Exception e) {
                 logger.error("Runtime exception in plugin method OnNATSEvent (RECONNECTED): ", e);
@@ -63,7 +63,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
         public void onClose(ConnectionEvent event)
         {
             try {
-                plugin.OnNATSEvent(NATSEvent.CLOSED, "NATS Connection closed.");
+                plugin.onNATSEvent(NATSEvent.CLOSED, "NATS Connection closed.");
             }
             catch (Exception e) {
                 logger.error("Runtime exception in plugin method OnNATSEvent (CLOSED): ", e);
@@ -76,7 +76,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
                 logger.error("Asynchronous error: subject: {} exception: {}",
                         sub.getSubject(), ex.getMessage());
 
-                plugin.OnNATSEvent(NATSEvent.ASYNC_ERROR, ex.getMessage());
+                plugin.onNATSEvent(NATSEvent.ASYNC_ERROR, ex.getMessage());
             }
             catch (Exception e) {
                 logger.error("Runtime exception in plugin method OnNATSEvent (CLOSED): ", e);
@@ -89,7 +89,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
                 String desc = "NATS Connection disconnected.";
                 logger.info(desc);
 
-                plugin.OnNATSEvent(NATSEvent.DISCONNECTED, desc);
+                plugin.onNATSEvent(NATSEvent.DISCONNECTED, desc);
             }
             catch (Exception e) {
                 logger.error("Runtime exception in plugin method OnNATSEvent (CLOSED): ", e);
@@ -150,7 +150,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
     {
         try
         {
-            plugin.OnNATSMessage(m);
+            plugin.onNATSMessage(m);
         }
         catch (Exception e)
         {
@@ -164,7 +164,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
         logger.debug("OnStartup");
         try
         {
-            return plugin.OnStartup(LoggerFactory.getLogger(plugin.getClass().getName()), factory);
+            return plugin.onStartup(LoggerFactory.getLogger(plugin.getClass().getName()), factory);
         }
         catch (Exception e)
         {
@@ -178,7 +178,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
         logger.debug("OnNatsInitialized");
         try
         {
-            return plugin.OnNatsInitialized(this);
+            return plugin.onNatsInitialized(this);
         }
         catch (Exception e)
         {
@@ -192,7 +192,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
         logger.debug("OnShutdown");
         try
         {
-            plugin.OnShutdown();
+            plugin.onShutdown();
         }
         catch (Exception e)
         {

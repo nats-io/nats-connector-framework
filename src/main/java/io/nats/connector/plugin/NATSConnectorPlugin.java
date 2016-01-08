@@ -30,7 +30,7 @@ public interface NATSConnectorPlugin {
      * @param factory - the NATS connection factory.
      * @return - true if the connector should continue, false otherwise.
      */
-    public boolean OnStartup(Logger logger, ConnectionFactory factory);
+    public boolean onStartup(Logger logger, ConnectionFactory factory);
 
     /**
      * Invoked after startup, when the NATS plug-in has connectivity to the
@@ -41,13 +41,13 @@ public interface NATSConnectorPlugin {
      *
      * @return true if the plugin can continue.
      */
-    public boolean OnNatsInitialized(NATSConnector connector);
+    public boolean onNatsInitialized(NATSConnector connector);
 
     /**
      * Invoked anytime a NATS message is received to be processed.
      * @param msg - NATS message received.
      */
-    public void OnNATSMessage(io.nats.client.Message msg);
+    public void onNATSMessage(io.nats.client.Message msg);
 
     /**
      * Invoked anytime a NATS event occurs around a connection
@@ -59,12 +59,12 @@ public interface NATSConnectorPlugin {
      * @param event the type of event
      * @param message a string describing the event
      */
-    public void OnNATSEvent(NATSEvent event, String message);
+    public void onNATSEvent(NATSEvent event, String message);
 
 
     /**
      * Invoked when the Plugin is shutting down.  This is typically where
      * plugin resources are cleaned up.
      */
-    public void OnShutdown();
+    public void onShutdown();
 }

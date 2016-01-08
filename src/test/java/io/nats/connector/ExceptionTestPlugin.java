@@ -65,13 +65,13 @@ public class ExceptionTestPlugin implements NATSConnectorPlugin  {
     }
 
     @Override
-    public boolean OnStartup(Logger logger, ConnectionFactory factory) {
+    public boolean onStartup(Logger logger, ConnectionFactory factory) {
         this.logger = logger;
         throw new RuntimeException("Exception from OnStartup");
     }
 
     @Override
-    public boolean OnNatsInitialized(NATSConnector connector)
+    public boolean onNatsInitialized(NATSConnector connector)
     {
         this.connector = connector;
 
@@ -94,19 +94,19 @@ public class ExceptionTestPlugin implements NATSConnectorPlugin  {
     }
 
     @Override
-    public void OnShutdown()
+    public void onShutdown()
     {
         throw new RuntimeException("Exception from OnNATSMessage");
     }
 
     @Override
-    public void OnNATSMessage(Message msg)
+    public void onNATSMessage(Message msg)
     {
         throw new RuntimeException("Exception from OnNATSMessage");
     }
 
     @Override
-    public void OnNATSEvent(NATSEvent event, String message)
+    public void onNATSEvent(NATSEvent event, String message)
     {
         throw new RuntimeException("Exception from OnNatsEvent");
     }
