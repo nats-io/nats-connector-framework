@@ -8,7 +8,6 @@ import io.nats.connector.plugin.NATSConnector;
 import io.nats.connector.plugin.NATSConnectorPlugin;
 import io.nats.connector.plugin.NATSEvent;
 import io.nats.connector.plugin.NATSUtilities;
-import jdk.nashorn.internal.parser.JSONParser;
 import org.json.*;
 import org.slf4j.Logger;
 
@@ -374,7 +373,7 @@ public class RedisPubSubPlugin implements NATSConnectorPlugin  {
     }
 
     @Override
-    public boolean OnStartup(Logger logger, ConnectionFactory factory) {
+    public boolean onStartup(Logger logger, ConnectionFactory factory) {
         this.logger = logger;
 
         try {
@@ -392,7 +391,7 @@ public class RedisPubSubPlugin implements NATSConnectorPlugin  {
     }
 
     @Override
-    public boolean OnNatsInitialized(NATSConnector connector)
+    public boolean onNatsInitialized(NATSConnector connector)
     {
         this.connector = connector;
 
@@ -424,13 +423,13 @@ public class RedisPubSubPlugin implements NATSConnectorPlugin  {
     }
 
     @Override
-    public void OnShutdown()
+    public void onShutdown()
     {
         teardownJedis();
     }
 
     @Override
-    public void OnNATSMessage(Message msg)
+    public void onNATSMessage(Message msg)
     {
         String subject = msg.getSubject();
         byte[] channel = getChannelFromSubject(subject);
@@ -447,7 +446,7 @@ public class RedisPubSubPlugin implements NATSConnectorPlugin  {
     }
 
     @Override
-    public void OnNATSEvent(NATSEvent event, String message)
+    public void onNATSEvent(NATSEvent event, String message)
     {
         // TODO:  Handle corner cases
         // Connection disconnected - close JEDIS, buffer messages?

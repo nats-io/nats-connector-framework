@@ -63,13 +63,13 @@ public class NatsTestPlugin implements NATSConnectorPlugin  {
     }
 
     @Override
-    public boolean OnStartup(Logger logger, ConnectionFactory factory) {
+    public boolean onStartup(Logger logger, ConnectionFactory factory) {
         this.logger = logger;
         return true;
     }
 
     @Override
-    public boolean OnNatsInitialized(NATSConnector connector)
+    public boolean onNatsInitialized(NATSConnector connector)
     {
         this.connector = connector;
 
@@ -92,13 +92,13 @@ public class NatsTestPlugin implements NATSConnectorPlugin  {
     }
 
     @Override
-    public void OnShutdown()
+    public void onShutdown()
     {
         logger.info("Shutting down.");
     }
 
     @Override
-    public void OnNATSMessage(io.nats.client.Message msg)
+    public void onNATSMessage(io.nats.client.Message msg)
     {
 
         logger.info("Received message: " + msg.toString());
@@ -121,7 +121,7 @@ public class NatsTestPlugin implements NATSConnectorPlugin  {
     }
 
     @Override
-    public void OnNATSEvent(NATSEvent event, String message)
+    public void onNATSEvent(NATSEvent event, String message)
     {
         switch (event)
         {
