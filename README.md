@@ -273,9 +273,11 @@ public interface NATSConnector {
 - [ ] Auth (password)
 - [ ] Failover/Clustering Support
 
-## Other potential plugins
-* Kafka
-* RabbitMQ
-* JMS
-* File Based
-* Fun Demo Stuff - Twitter? Weather?
+## Other potential plugins 
+* [Kafka](http://kafka.apache.org/documentation.html)
+* [HDFS](https://hadoop.apache.org/docs/r2.6.2/api/org/apache/hadoop/fs/FileSystem.html)
+* [RabbitMQ](https://www.rabbitmq.com/api-guide.html)
+* [ElastiSearch](https://www.elastic.co/guide/en/elasticsearch/client/java-api/current/client.html)
+* [JMS](http://docs.oracle.com/javaee/6/api/javax/jms/package-summary.html)
+* File Based - A simple basic file xfer utility
+* [IBM MQ](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_7.5.0/com.ibm.mq.dev.doc/q030520_.htm)
