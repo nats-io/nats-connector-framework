@@ -30,6 +30,7 @@ import java.io.FileInputStream;
  * system, feed data into NATS, or both.
  *
  * The plugin's responsibilities include:
+ *
  * Ensuring performance out of nats.  This may include some buffering
  * if the destination of the data consumer slower than NATS produces it.
  *
@@ -83,7 +84,6 @@ public class Connector implements Runnable
     {
         try
         {
-
             logger.info("NATS Connector starting up.");
 
             flowHandler = new DataFlowHandler(plugin, gwProps, logger);
@@ -106,6 +106,14 @@ public class Connector implements Runnable
         {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Shuts down a running Connector.
+     */
+    public void shutdown()
+    {
+        flowHandler.shutdown();
     }
 
     private void traceProperties()

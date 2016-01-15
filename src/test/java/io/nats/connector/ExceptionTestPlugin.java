@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Created by colinsullivan on 12/30/15.
+ * WIP
  */
 public class ExceptionTestPlugin implements NATSConnectorPlugin  {
     NATSConnector connector = null;

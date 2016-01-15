@@ -3,6 +3,7 @@
 package io.nats.connector.plugins.redis;
 
 import io.nats.client.ConnectionFactory;
+import io.nats.client.Constants;
 import io.nats.client.Message;
 import io.nats.connector.plugin.NATSConnector;
 import io.nats.connector.plugin.NATSConnectorPlugin;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import redis.clients.jedis.*;
 import redis.clients.jedis.exceptions.*;
 
+import java.util.ArrayList;
 import java.util.Properties;
 
 import java.util.concurrent.ExecutorService;
@@ -21,6 +23,7 @@ import java.util.concurrent.Executors;
 
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.List;
 
 /**
  * This is the Redis Pub/Sub connector plugin.
@@ -53,8 +56,9 @@ import java.util.Map.Entry;
  * Redis publishing to NATS.Export will send messages to NATS on subject
  * Redis.Import.
  *
- * This is highly customizable, by adding multiple subscriptions,
- * and supporting wildcard/pattern subscriptions.
+ * This is highly customizable by adding multiple subscriptions.
+ *
+ * Wildcards/Patters are not yet supported.
  *
  * Take care to avoid circular routes generated
  * by overlapping maps should be avoided.
@@ -75,11 +79,18 @@ public class RedisPubSubPlugin implements NATSConnectorPlugin  {
     NATSConnector connector = null;
     Logger logger = null;
 
-    private HashMap<String, String> channelsToSubjects = null;
-    private HashMap<String, String> subjectsToChannels = null;
+    boolean trace = false;
 
-    JedisPool    jedisPool      = null;
-    BinaryJedis  publishJedis   = null;
+    private HashMap<String, List<String>> channelsToSubjects = null;
+    private HashMap<String, List<String>> subjectsToChannels = null;
+
+    JedisPool    jedisPool        = null;
+    BinaryJedis  publishJedis     = null;
+
+    // TODO:  One publishJedis vs pool?  Threadsafety issue here.
+    // Create a jedis instance for each subject?
+
+    Object       redisPublishLock = new Object();
 
     ListenForRedisUpdates listener = null;
 
@@ -124,20 +135,85 @@ public class RedisPubSubPlugin implements NATSConnectorPlugin  {
             throw new Exception("subject not defined in map.");
     }
 
+    private boolean isNatsSubjectValid(String subject)
+    {
+        if (subject == null)
+        {
+            logger.warn("Null NATS subjects are not valid.");
+            return false;
+        }
+
+        if (subject.isEmpty())
+        {
+            logger.warn("Empty NATS subject is are not valid.");
+            return false;
+        }
+
+        if (subject.contains(">") || subject.contains("*"))
+        {
+            logger.warn("Wildcard NATS subject {} is not supported.", subject);
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean listContains(List<String> list, String value)
+    {
+        for (String s : list)
+        {
+            if (s.equals(value))
+            {
+                // just silently ignore duplicate mappings.
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void addToMap(HashMap<String, List<String>> map, String key, String value)
+    {
+        List <String> l = null;
+
+        if (map == null)
+            return;
+
+        if (map.containsKey(key) == false)
+        {
+            l = new ArrayList<String>();
+            l.add(value);
+            map.put(key, l);
+        }
+        else
+        {
+            l = map.get(key);
+
+            // just silenly ignore duplicates.
+            if (listContains(l, value))
+                return;
+
+            l.add(value);
+        }
+    }
+
     private void parseRedisToNatsMapObj(JSONObject destMapObj) throws Exception
     {
         checkMapObj(destMapObj);
 
         if (channelsToSubjects == null)
-            channelsToSubjects = new HashMap<String, String>();
+            channelsToSubjects = new HashMap<String, List<String>>();
 
         String channel = destMapObj.getString("channel");
         String subject = destMapObj.getString("subject");
 
+        if (!isNatsSubjectValid(subject))
+            throw new Exception("Invalid subject: " + subject);
+
         logger.debug("Mapping Redis channel {} to NATS subject {}",
                 channel, subject);
 
-        channelsToSubjects.put(channel, subject);
+        addToMap(channelsToSubjects, channel, subject);
     }
 
     private void parseNatsToRedisMapObj(JSONObject destMapObj) throws Exception
@@ -145,125 +221,184 @@ public class RedisPubSubPlugin implements NATSConnectorPlugin  {
         checkMapObj(destMapObj);
 
         if (subjectsToChannels == null)
-            subjectsToChannels = new HashMap<String, String>();
+            subjectsToChannels = new HashMap<String, List<String>>();
 
         String channel = destMapObj.getString("channel");
         String subject = destMapObj.getString("subject");
 
-        logger.debug("Mapping NATS subject {} to Redis channel {}",
-                channel, subject);
+        if (!isNatsSubjectValid(subject))
+            throw new Exception("Invalid subject: " + subject);
 
-        subjectsToChannels.put(subject, channel);
+        logger.debug("Mapping NATS subject {} to Redis channel {}",
+                subject, channel);
+
+        addToMap(subjectsToChannels, subject, channel);
     }
 
-    // Warn against circular routes; it won't end well.
+    // Warn against circular routes; they don't end well.
+    //
     // TODO:  Wildcard/Pattern checks someday.
     private void warnOnCircularRoute()
     {
+        if (subjectsToChannels == null || channelsToSubjects == null)
+            return;
+
         // find NATS subject to redis subject matches
-        for (Entry<String, String> subjEntry : subjectsToChannels.entrySet())
+        for (Entry<String, List<String>> subjEntry : subjectsToChannels.entrySet())
         {
-            for (Entry<String, String> chanEntry : channelsToSubjects.entrySet())
+            for (Entry<String, List<String>> chanEntry : channelsToSubjects.entrySet())
             {
-                if (subjEntry.getKey().equals(chanEntry.getValue()) &&
-                        subjEntry.getValue().equals(chanEntry.getKey()))
+                if (listContains(chanEntry.getValue(), subjEntry.getKey()) &&
+                        listContains(subjEntry.getValue(), (chanEntry.getKey())))
                 {
-                    logger.warn("Possible circular route found between subject '{}' and channel '{}'",
+                    logger.error("Circular route found between subject '{}' and channel '{}'",
                             subjEntry.getKey(), subjEntry.getValue());
                 }
             }
         }
     }
 
-    private void loadConfig() throws Exception
-    {
-       String configStr = defaultConfiguration;
 
+    /**
+     * Gets the default configuration.
+     * @return default configuration as a JSON string.
+     */
+    String getDefaultConfiguration()
+    {
+        return defaultConfiguration;
+    }
+
+    private void loadConfig() throws Exception {
+
+        String configStr = getDefaultConfiguration();
 
         if (configUrl != null) {
             configStr = NATSUtilities.readFromUrl(configUrl);
         }
 
-        JSONObject rootConfig = new JSONObject(new JSONTokener(configStr));
+        parseConfiguration(configStr);
+    }
+
+    /**
+     * Public for testing purposes.
+     *
+     * @param jsonConfig - json configuration in a string.
+     * @throws Exception - an error occurred parsing the configuration.
+     */
+    public void parseConfiguration(String jsonConfig) throws Exception
+    {
+        JSONArray ja;
+
+        JSONObject rootConfig = new JSONObject(new JSONTokener(jsonConfig));
 
         host = rootConfig.optString("host", DEFAULT_REDIS_HOST);
         port = rootConfig.optInt("port", DEFAULT_REDIS_PORT);
         timeout = rootConfig.optInt("timeout", DEFAULT_REDIS_TIMEOUT);
 
-        JSONArray ja = rootConfig.getJSONArray("nats_to_redis_map");
-        if (ja != null) {
-            for (int i = 0; i < ja.length(); i++) {
-                parseNatsToRedisMapObj((JSONObject)ja.get(i));
+        if (rootConfig.has("nats_to_redis_map")) {
+            ja = rootConfig.getJSONArray("nats_to_redis_map");
+            if (ja != null) {
+                for (int i = 0; i < ja.length(); i++) {
+                    parseNatsToRedisMapObj((JSONObject) ja.get(i));
+                }
             }
         }
 
-        ja = rootConfig.getJSONArray("redis_to_nats_map");
-        if (ja != null) {
-            for (int i = 0; i < ja.length(); i++) {
-                parseRedisToNatsMapObj((JSONObject)ja.get(i));
+        if (rootConfig.has("redis_to_nats_map")) {
+            ja = rootConfig.getJSONArray("redis_to_nats_map");
+            if (ja != null) {
+                for (int i = 0; i < ja.length(); i++) {
+                    parseRedisToNatsMapObj((JSONObject) ja.get(i));
+                }
             }
         }
 
         warnOnCircularRoute();
     }
 
-    private byte[] getChannelFromSubject(String subject)
+    private List<String> getChannelsFromSubject(String subject)
     {
-        String channel = subjectsToChannels.get(subject);
-        if (channel == null)
+        if (subjectsToChannels == null)
             return null;
 
-        return channel.getBytes();
+        return subjectsToChannels.get(subject);
     }
 
-    private String getSubjectFromChannel(String channel)
+    private List<String> getSubjectsFromChannel(String channel)
     {
+        if (channelsToSubjects == null)
+            return null;
+
         return channelsToSubjects.get(channel);
     }
 
     private class JedisListener extends JedisPubSub
     {
+        List<String> l;
+
         Message natsMessage = new Message();
 
         private void sendNatsMessage(String channelOrPattern, String message)
         {
-            String subject = getSubjectFromChannel(channelOrPattern);
-
-            natsMessage.setSubject(subject);
+            l = getSubjectsFromChannel(channelOrPattern);
 
             byte[] payload = message.getBytes();
             natsMessage.setData(payload, 0, payload.length);
 
-            connector.publish(natsMessage);
+            for (String s : l) {
+                natsMessage.setSubject(s);
+                connector.publish(natsMessage);
 
-            logger.trace("Published Message Redis ({}) -> NATS ({})", channelOrPattern, subject);
+                logger.trace("Send Redis ({}) -> NATS ({})", channelOrPattern, s);
+            }
         }
 
+        @Override
         public void onMessage(String channel, String message)
         {
             sendNatsMessage(channel, message);
+            super.onMessage(channel, message);
         }
 
+        @Override
         public void onSubscribe(String channel, int subscribedChannels)
         {
             logger.debug("Subscribed to Redis channel {} ({})", channel, subscribedChannels);
+
+            super.onSubscribe(channel, subscribedChannels);
         }
 
-        public void onUnsubscribe(String channel, int subscribedChannels) {
+        @Override
+        public void onUnsubscribe(String channel, int subscribedChannels)
+        {
             logger.debug("Unsubscribed to Redis channel {} ({})", channel, subscribedChannels);
+
+            super.onUnsubscribe(channel, subscribedChannels);
         }
 
-        public void onPSubscribe(String pattern, int subscribedChannels) {
+        @Override
+        public void onPSubscribe(String pattern, int subscribedChannels)
+        {
             logger.debug("Subscribed to Redis pattern {} ({})", pattern, subscribedChannels);
+
+            super.onPSubscribe(pattern, subscribedChannels);
         }
 
-        public void onPUnsubscribe(String pattern, int subscribedChannels) {
+        @Override
+        public void onPUnsubscribe(String pattern, int subscribedChannels)
+        {
             logger.debug("Unsubscribed from Redis pattern  {} ({})", pattern, subscribedChannels);
+
+            super.onPUnsubscribe(pattern, subscribedChannels);
         }
 
+        @Override
         public void onPMessage(String pattern, String channel,
-                               String message) {
+                               String message)
+        {
             sendNatsMessage(channel, message);
+
+            super.onPMessage(pattern, channel, message);
         }
     }
 
@@ -322,7 +457,6 @@ public class RedisPubSubPlugin implements NATSConnectorPlugin  {
 
             while (isRunning())
             {
-                // TODO - break this call when stopping...
                 try {
                     String[] channels = buildJedisSubscribeChannels();
                     logChannels(channels);
@@ -356,12 +490,16 @@ public class RedisPubSubPlugin implements NATSConnectorPlugin  {
 
     private void initJedis()
     {
+        logger.debug("Initializing Redis.");
+
         jedisPool = new JedisPool(new JedisPoolConfig(), host, port, timeout);
         publishJedis = jedisPool.getResource();
     }
 
     private void teardownJedis()
     {
+        logger.debug("Cleaning up Redis Resources.");
+
         if (listener != null)
             listener.shutdown();
 
@@ -432,23 +570,39 @@ public class RedisPubSubPlugin implements NATSConnectorPlugin  {
     public void onNATSMessage(Message msg)
     {
         String subject = msg.getSubject();
-        byte[] channel = getChannelFromSubject(subject);
-        if (channel == null)
+        List<String> channels = getChannelsFromSubject(subject);
+        if (channels == null)
         {
-            // TODO: Able to get here legitimately this with wildcard?
             logger.error("Cannot publish from NATS to Redis - unmapped subject '" + subject + "'");
             return;
         }
 
-        publishJedis.publish(channel, msg.getData());
+        byte[] payload = msg.getData();
 
-        logger.debug("Message NATS ({}) -> Redis", subject);
+        for (String s : channels)
+        {
+
+            byte[] channel = s.getBytes();
+
+            // NOTE:  in tests, one can get an EOS exception here when shutting down.
+            //
+            // Also, a jedis instance is not threadsafe.  Right now simply lock.
+            // If we need better performance, investigate using one per
+            // NATS subject.
+            synchronized (redisPublishLock) {
+                publishJedis.publish(channel, payload);
+            }
+
+            logger.trace("Send NATS ({}) -> Redis ({})", subject, new String(channel));
+        }
     }
 
     @Override
     public void onNATSEvent(NATSEvent event, String message)
     {
-        // TODO:  Handle corner cases
+        // When a connection has been disconnected unexpectedly, NATS will
+        // try to reconnect.  Messages published during the reconnect will
+        // be buffered and resent, so there may be no need to do anything.
         // Connection disconnected - close JEDIS, buffer messages?
         // Reconnected - reconnect to JEDIS.
         // Closed:  should handle elsewhere.
@@ -456,19 +610,25 @@ public class RedisPubSubPlugin implements NATSConnectorPlugin  {
         switch (event)
         {
             case ASYNC_ERROR:
-                logger.error("NATS Event Async error: " + message);
+                logger.error("NATS Asynchronous error: " + message);
                 break;
             case RECONNECTED:
-                logger.info("NATS Event Reconnected: " + message);
+                logger.info("Reconnected to the NATS cluster: " + message);
+                // At this point, we may not have to do much.  Buffered NATS messages
+                // may be flushed. and we'll buffer and flush the Redis messages.
+                // Revisit this later if we need more buffering.
                 break;
             case DISCONNECTED:
-                logger.info("NATS Event Disconnected: " + message);
+                logger.info("Disconnected from the NATS cluster: " + message);
                 break;
             case CLOSED:
-                logger.info("NATS Event Closed: " + message);
+                logger.debug("NATS Event Connection Closed: " + message);
+                // shudown - if this is a result of shutdown elsewhere,
+                // there will be no effect.
+                connector.shutdown();
                 break;
             default:
-                logger.warn("NATS Event (Unknown): " + message);
+                logger.warn("Unknown NATS Event: " + message);
         }
     }
 }
