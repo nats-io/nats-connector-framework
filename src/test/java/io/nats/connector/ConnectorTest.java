@@ -4,9 +4,6 @@ package io.nats.connector;
 
 import org.junit.Test;
 
-/**
- * Created by colinsullivan on 12/30/15.
- */
 public class ConnectorTest {
 
     @Test

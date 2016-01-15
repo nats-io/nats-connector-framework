@@ -31,7 +31,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
     private Object cleanupLock = new Object();
     private boolean hasCleanedUp = false;
 
-    // TODO eval - this for performance - preoptimization is evil.
+    // TODO eval - this for performance.  Is it necessary?
     private AtomicBoolean     isRunning   = new AtomicBoolean();
 
     private ConnectionFactory connectionFactory = null;
@@ -44,10 +44,10 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
         this.logger = logger;
     }
 
-    // TODO:  pass through to allow users to get their own?
-    class EventHandlers implements ClosedEventHandler, DisconnectedEventHandler,
-            ExceptionHandler, ReconnectedEventHandler
+    class EventHandlers implements ClosedCallback, DisconnectedCallback,
+            ExceptionHandler, ReconnectedCallback
     {
+        @Override
         public void onReconnect(ConnectionEvent event)
         {
             try {
@@ -60,6 +60,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
             }
         }
 
+        @Override
         public void onClose(ConnectionEvent event)
         {
             try {
@@ -70,11 +71,11 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
             }
         }
 
-        public void onException(Connection conn, Subscription sub, Throwable ex)
+        public void onException(NATSException ex)
         {
             try {
-                logger.error("Asynchronous error: subject: {} exception: {}",
-                        sub.getSubject(), ex.getMessage());
+                logger.error("Asynchronous error: exception: {}",
+                        ex.getMessage());
 
                 plugin.onNATSEvent(NATSEvent.ASYNC_ERROR, ex.getMessage());
             }
@@ -83,11 +84,12 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
             }
         }
 
+        @Override
         public void onDisconnect(ConnectionEvent event) {
             try {
 
                 String desc = "NATS Connection disconnected.";
-                logger.info(desc);
+                logger.debug(desc);
 
                 plugin.onNATSEvent(NATSEvent.DISCONNECTED, desc);
             }
@@ -102,10 +104,10 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
         connectionFactory = new ConnectionFactory(properties);
         EventHandlers eh = new EventHandlers();
 
-        connectionFactory.setClosedEventHandler(eh);
-        connectionFactory.setDisconnectedEventHandler(eh);
+        connectionFactory.setClosedCallback(eh);
+        connectionFactory.setDisconnectedCallback(eh);
         connectionFactory.setExceptionHandler(eh);
-        connectionFactory.setReconnectedEventHandler(eh);
+        connectionFactory.setReconnectedCallback(eh);
 
         // invoke on startup here, so the user can override or set their
         // own callbacks in the plugin if need be.
@@ -175,7 +177,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
 
     private boolean invokeOnNatsInitialized()
     {
-        logger.debug("OnNatsInitialized");
+        logger.trace("OnNatsInitialized");
         try
         {
             return plugin.onNatsInitialized(this);
@@ -189,7 +191,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
 
     private void invokePluginShutdown()
     {
-        logger.debug("OnShutdown");
+        logger.trace("OnShutdown");
         try
         {
             plugin.onShutdown();
@@ -254,7 +256,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
                 return;
 
 
-            logger.info("Cleaning up.");
+            logger.debug("Cleaning up.");
 
             // we are shutting down.
             invokePluginShutdown();
@@ -300,7 +302,7 @@ public class DataFlowHandler implements MessageHandler, NATSConnector {
         if (isRunning.get() == false)
             return;
 
-        logger.debug("Plugin initiated NATS connector shutdown.");
+        logger.debug("NATS connector is shutting down.");
 
         isRunning.set(false);
 

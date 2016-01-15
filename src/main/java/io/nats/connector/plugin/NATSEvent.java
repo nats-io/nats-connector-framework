@@ -8,7 +8,7 @@ package io.nats.connector.plugin;
 public enum NATSEvent {
 
     /**
-     * An asynchronuous error has occurred.
+     * An asynchronous error has occurred.
      */
     ASYNC_ERROR,
 
