@@ -1,0 +1,25 @@
+before_install:
+  - export GOPATH=$HOME/gopath
+  - export PATH=$PATH:$GOPATH/bin
+  - export JAVA_OPTS=-Xmx2g
+
+install:
+  - go get github.com/nats-io/gnatsd
+
+services:
+  - redis-server
+  
+language: java
+
+jdk:
+ - oraclejdk7
+ 
+after_success:
+   - mvn clean test jacoco:report coveralls:jacoco
+
+notifications:
+  # Email notifications are disabled to not annoy anybody.
+  # See http://about.travis-ci.org/docs/user/build-configuration/ to learn more
+  # about configuring notification recipients and more.
+  # webhooks: http://basho-engbot.herokuapp.com/travis?key=a8f477c8cdaabc8118d2a650281ff4a71eff875f
+  email: false
