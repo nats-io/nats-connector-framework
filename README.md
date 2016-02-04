@@ -1,6 +1,5 @@
 # NATS Connector 
-A pluggable service to bridge NATS and java based technologies
-A [Java](http://www.java.com) Connector for the [NATS messaging system](https://nats.io).
+A pluggable [Java](http://www.java.com) based service to bridge the [NATS messaging system](https://nats.io) and other technologies.
 
 [![License MIT](https://img.shields.io/npm/l/express.svg)](http://opensource.org/licenses/MIT)
 [![Build Status](https://travis-ci.org/nats-io/nats-connector.svg?branch=master)](http://travis-ci.org/nats-io/nats-connector)
@@ -8,7 +7,6 @@ A [Java](http://www.java.com) Connector for the [NATS messaging system](https://
 [![Coverage Status](https://coveralls.io/repos/nats-io/nats-connector/badge.svg?branch=master&service=github)](https://coveralls.io/github/nats-io/nats-connector?branch=master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.nats/nats-connector/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.nats/nats-connector)
 
-Documentation (javadoc) is [here](http://nats-io.github.io/nats-connector). 
 
 ## Summary
 
