@@ -1,4 +1,10 @@
-// Copyright 2015 Apcera Inc.  All Rights Reserved.
+/*******************************************************************************
+ * Copyright (c) 2012, 2016 Apcera Inc.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the MIT License (MIT)
+ * which accompanies this distribution, and is available at
+ * http://opensource.org/licenses/MIT
+ *******************************************************************************/
 
 package io.nats.connector;
 
@@ -12,9 +18,6 @@ import org.slf4j.Logger;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * Created by colinsullivan on 12/30/15.
- */
 public class NatsTestPlugin implements NATSConnectorPlugin  {
     NATSConnector connector = null;
     Logger logger = null;

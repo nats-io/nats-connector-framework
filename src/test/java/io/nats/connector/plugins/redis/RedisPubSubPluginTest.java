@@ -1,11 +1,17 @@
-// Copyright 2015 Apcera Inc.  All Rights Reserved.
+/*******************************************************************************
+ * Copyright (c) 2012, 2016 Apcera Inc.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the MIT License (MIT)
+ * which accompanies this distribution, and is available at
+ * http://opensource.org/licenses/MIT
+ *******************************************************************************/
 
 package io.nats.connector.plugins.redis;
 
 import io.nats.connector.Connector;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.Assert;
+import io.nats.connector.TestCasePrinterRule;
+import io.nats.connector.UnitTestUtilities;
+import org.junit.*;
 import io.nats.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +29,21 @@ public class RedisPubSubPluginTest {
     static final String NATS_PAYLOAD = "Hello from NATS!";
 
     Logger logger = null;
+
+    @Rule
+    public TestCasePrinterRule pr = new TestCasePrinterRule(System.out);
+
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        UnitTestUtilities.startDefaultServer();
+        Thread.sleep(500);
+    }
+
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+        UnitTestUtilities.stopDefaultServer();
+        Thread.sleep(500);
+    }
 
     abstract class TestClient
     {
@@ -347,7 +368,79 @@ public class RedisPubSubPluginTest {
         logger = LoggerFactory.getLogger(RedisPubSubPluginTest.class);
     }
 
-    public void testOneToOneWithDefaultConfig(int count) throws Exception {
+    @Test
+    public void testNatsToRedis() throws Exception {
+
+        System.clearProperty(RedisPubSubPlugin.CONFIG_URL);
+
+        Connector c = new Connector();
+
+        ExecutorService executor = Executors.newFixedThreadPool(6);
+
+        RedisSubscriber rs = new RedisSubscriber("rs", "Import_NATS", 5);
+        NatsPublisher   np = new NatsPublisher("np", "Export.Redis",  5);
+
+        // start the connector
+        executor.execute(c);
+
+        // start the subsciber
+        executor.execute(rs);
+
+        // wait for subscriber to be ready.
+        rs.waitUntilReady();
+
+        // let the connector start
+        Thread.sleep(2000);
+
+        // start the publisher
+        executor.execute(np);
+
+        // wait for the subscribers to complete.
+        rs.waitForCompletion();
+
+        Assert.assertTrue("Invalid count", rs.getMessageCount() == 5);
+
+        c.shutdown();
+    }
+
+    @Test
+    public void testRedisToNats() throws Exception {
+
+        System.clearProperty(RedisPubSubPlugin.CONFIG_URL);
+
+        Connector c = new Connector();
+
+        ExecutorService executor = Executors.newFixedThreadPool(6);
+
+        RedisPublisher  rp = new RedisPublisher("rp", "Export_NATS",  5);
+        NatsSubscriber  ns = new NatsSubscriber("ns", "Import.Redis", 5);
+
+        // start the connector
+        executor.execute(c);
+
+        // start the subsciber app
+        executor.execute(ns);
+
+        // wait for subscriber to be ready.
+        ns.waitUntilReady();
+
+        // let the connector start
+        Thread.sleep(2000);
+
+        // start the publisher
+        executor.execute(rp);
+
+        // wait for the subscriber to complete.
+        ns.waitForCompletion();
+
+        Assert.assertTrue("Invalid count", ns.getMessageCount() == 5);
+
+        c.shutdown();
+    }
+
+    private void testOneToOneWithDefaultConfig(int count) throws Exception {
+
+        System.clearProperty(RedisPubSubPlugin.CONFIG_URL);
 
         Connector c = new Connector();
 
@@ -751,6 +844,8 @@ public class RedisPubSubPluginTest {
         Assert.assertTrue("Invalid count", ns1.getMessageCount() == (count*3));
 
         c.shutdown();
+
+        Thread.sleep(2000);
 
     }
 
