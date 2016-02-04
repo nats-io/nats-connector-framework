@@ -13,16 +13,16 @@ import org.slf4j.Logger;
 
 /**
  * This interface that must be implemented for a NATS Connector plugin.
- *
+ * <p>
  * The order of calls are:
- *
- * OnStartup
- * OnNatsIntialized
- *
- * ...
- * OnNatsMessage, OnNATSEvent
- * ...
- * OnShutdown
+ * <p>
+ * onStartup
+ * <p>
+ * onNatsIntialized
+ * <p>
+ * During operation:  onNatsMessage and onNATSEvent
+ * <p>
+ * onShutdown
  */
 public interface NATSConnectorPlugin {
 

@@ -20,27 +20,26 @@ import java.io.FileInputStream;
 
 /**
  * This is the main connector class for the NATS Connector.
+ * <p>
  * It operates as follows:
- *
- * It is entirely java properties driven - these can be set as parameters
+ *<p>
+ * The connector is entirely java properties driven - these can be set as parameters
  * to the JVM or passed in as a file.
- *
+ * <p>
  * The Connector starts a thread which drives a DataFlowHandler.
  * The handler connects to NATS and invokes various interfaces on
  * a supplied plugin.
- *
+ * <p>
  * The plugin has a few APIs that allow it to publish messages,
  * flush the NATS connection, and subscribe to various subjects.
- *
+ * <p>
  * A plugin can both subscribe to receive data and export it to another
  * system, feed data into NATS, or both.
- *
- * The plugin's responsibilities include:
- *
- * Ensuring performance out of nats.  This may include some buffering
- * if the destination of the data consumer slower than NATS produces it.
- *
- * Translation of external origin/destination and the subject namespace.
+ * <p>
+ * The plugin's responsibilities include: a) Ensuring performance out of nats.
+ * This may include some buffering if the destination of the data consumer
+ * slower than NATS produces it. b) Translation of external origin/destination
+ * and the subject namespace.
  */
 public class Connector implements Runnable
 {

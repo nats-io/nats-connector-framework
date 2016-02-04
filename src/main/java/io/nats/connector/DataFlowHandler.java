@@ -20,7 +20,7 @@ import io.nats.connector.plugin.NATSEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DataFlowHandler implements MessageHandler, NATSConnector {
+class DataFlowHandler implements MessageHandler, NATSConnector {
 
     private NATSConnectorPlugin plugin     = null;
 
