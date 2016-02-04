@@ -1,17 +1,74 @@
-# nats-connector
-A pluggable service to bridge NATS with other technologies
+# NATS Connector 
+A pluggable service to bridge NATS and java based technologies
+A [Java](http://www.java.com) Connector for the [NATS messaging system](https://nats.io).
 
-## Work in Progress
-Code here is not quite ready for public consumption, but feel free to browse.  This should currently be considered alpha quality.
+[![License MIT](https://img.shields.io/npm/l/express.svg)](http://opensource.org/licenses/MIT)
+[![Build Status](https://travis-ci.org/nats-io/nats-connector.svg?branch=master)](http://travis-ci.org/nats-io/nats-connector)
+[![Javadoc](http://javadoc-badge.appspot.com/io.nats/nats-connector.svg?label=javadoc)](http://nats-io.github.io/nats-connector)
+[![Coverage Status](https://coveralls.io/repos/nats-io/nats-connector/badge.svg?branch=master&service=github)](https://coveralls.io/github/nats-io/nats-connector?branch=master)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.nats/nats-connector/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.nats/nats-connector)
+
+Documentation (javadoc) is [here](http://nats-io.github.io/nats-connector). 
 
 ## Summary
 
-The NATS connector is provided to facilitate the bridging of NATS and other technologies with a general, easy to use, plug-in framework.  
-General application tasks and NATS connectivity are taken care of, allowing a developer to focus on the technology rather than application development.
-
-The java platform was chosen to provide allow the most coverage as possible - most other technologies have a Java API.
+The NATS connector is provided to facilitate the bridging of NATS and other technologies with a general, easy to use, plug-in framework.  General application tasks and NATS connectivity are taken care of, allowing a developer to focus on the technology rather than application development.  The java platform was chosen to reach most existing technologies today.
 
 Some plug-ins will be provided and maintained by Apcera.
+
+## Installation
+
+### Maven Central
+
+#### Releases
+
+The NATS connector is currently alpha and there are no official releases.
+
+#### Snapshots
+
+Snapshots are regularly uploaded to the Sonatype OSSRH (OSS Repository Hosting) using
+the same Maven coordinates.
+Add the following dependency to your project's `pom.xml`.
+
+```xml
+  <dependencies>
+    ...
+    <dependency>
+      <groupId>io.nats</groupId>
+      <artifactId>nats-connector</artifactId>
+      <version>0.1.0-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+```
+If you don't already have your pom.xml configured for using Maven snapshots, you'll also need to add the following repository to your pom.xml.
+
+```xml
+<repositories>
+    ...
+    <repository>
+        <id>sonatype-snapshots</id>
+        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+```
+#### Building from source code (this repository)
+First, download the source code:
+```
+git clone git@github.com:nats-io/nats-connector.git .
+```
+
+To build the library, use [maven](https://maven.apache.org/). From the root directory of the project:
+
+```
+mvn package verify
+```
+The jar file will be built in the `target` directory. Then copy the jar file to your classpath and you're all set.
+
+NOTE: running the unit tests requires that `gnatsd` be installed on your system and available in your executable search path.  For the NATS redis plugin to pass tests, the redis server must be installed and running at the default port.
+
 
 ### Source code (this repository)
 To download the source code:
@@ -266,7 +323,7 @@ public interface NATSConnector {
 - [ ] Travis CI
 - [ ] Containerize
 - [ ] Kafka Plugin
-- [ ] Maven Central
+- [X] Maven Central
 
 ### Redis Plugin
 - [ ] Wildcard Support
