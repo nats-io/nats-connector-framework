@@ -5,7 +5,6 @@ A pluggable [Java](http://www.java.com) based service to bridge the [NATS messag
 [![Build Status](https://travis-ci.org/nats-io/nats-connector.svg?branch=master)](http://travis-ci.org/nats-io/nats-connector)
 [![Javadoc](http://javadoc-badge.appspot.com/io.nats/nats-connector.svg?label=javadoc)](http://nats-io.github.io/nats-connector)
 [![Coverage Status](https://coveralls.io/repos/nats-io/nats-connector/badge.svg?branch=master&service=github)](https://coveralls.io/github/nats-io/nats-connector?branch=master)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.nats/nats-connector/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.nats/nats-connector)
 
 
 ## Summary
