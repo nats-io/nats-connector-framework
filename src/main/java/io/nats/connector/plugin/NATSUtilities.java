@@ -1,4 +1,10 @@
-// Copyright 2015 Apcera Inc.  All Rights Reserved.
+/*******************************************************************************
+ * Copyright (c) 2012, 2016 Apcera Inc.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the MIT License (MIT)
+ * which accompanies this distribution, and is available at
+ * http://opensource.org/licenses/MIT
+ *******************************************************************************/
 
 package io.nats.connector.plugin;
 
@@ -11,10 +17,18 @@ import java.net.URL;
 import java.io.IOException;
 
 /**
- * Created by colinsullivan on 1/4/16.
+ * Utilities used by the plugin.
  */
 public class NATSUtilities {
 
+    /**
+     * Reads a url and returns the content as a string.  Useful for reading a
+     * configuration in a cloud environment.
+     *
+     * @param url url to read from
+     * @return url contents as a string
+     * @throws IOException
+     */
     public static String readFromUrl(String url) throws IOException
     {
         InputStream is = new URL(url).openStream();

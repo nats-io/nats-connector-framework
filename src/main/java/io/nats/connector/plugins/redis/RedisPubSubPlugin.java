@@ -1,9 +1,14 @@
-// Copyright 2015 Apcera Inc.  All Rights Reserved.
+/*******************************************************************************
+ * Copyright (c) 2012, 2016 Apcera Inc.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the MIT License (MIT)
+ * which accompanies this distribution, and is available at
+ * http://opensource.org/licenses/MIT
+ *******************************************************************************/
 
 package io.nats.connector.plugins.redis;
 
 import io.nats.client.ConnectionFactory;
-import io.nats.client.Constants;
 import io.nats.client.Message;
 import io.nats.connector.plugin.NATSConnector;
 import io.nats.connector.plugin.NATSConnectorPlugin;
@@ -86,9 +91,6 @@ public class RedisPubSubPlugin implements NATSConnectorPlugin  {
 
     JedisPool    jedisPool        = null;
     BinaryJedis  publishJedis     = null;
-
-    // TODO:  One publishJedis vs pool?  Threadsafety issue here.
-    // Create a jedis instance for each subject?
 
     Object       redisPublishLock = new Object();
 

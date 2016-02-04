@@ -1,4 +1,10 @@
-// Copyright 2015 Apcera Inc.  All Rights Reserved.
+/*******************************************************************************
+ * Copyright (c) 2012, 2016 Apcera Inc.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the MIT License (MIT)
+ * which accompanies this distribution, and is available at
+ * http://opensource.org/licenses/MIT
+ *******************************************************************************/
 
 package io.nats.connector;
 
@@ -67,7 +73,7 @@ public class ExceptionTestPlugin implements NATSConnectorPlugin  {
     @Override
     public boolean onStartup(Logger logger, ConnectionFactory factory) {
         this.logger = logger;
-        throw new RuntimeException("Exception from OnStartup");
+        throw new RuntimeException("This is an exception from onStartup");
     }
 
     @Override
@@ -90,19 +96,19 @@ public class ExceptionTestPlugin implements NATSConnectorPlugin  {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(new SendOneMessage());
 
-        throw new RuntimeException("Exception from OnNatsInitialized");
+        throw new RuntimeException("This is an exception from onNatsInitialized");
     }
 
     @Override
     public void onShutdown()
     {
-        throw new RuntimeException("Exception from OnNATSMessage");
+        throw new RuntimeException("This is an exception from onShutdown");
     }
 
     @Override
     public void onNATSMessage(Message msg)
     {
-        throw new RuntimeException("Exception from OnNATSMessage");
+        throw new RuntimeException("This is an exception from onNATSMessage");
     }
 
     @Override

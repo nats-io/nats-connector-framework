@@ -1,4 +1,10 @@
-// Copyright 2015 Apcera Inc.  All Rights Reserved.
+/*******************************************************************************
+ * Copyright (c) 2012, 2016 Apcera Inc.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the MIT License (MIT)
+ * which accompanies this distribution, and is available at
+ * http://opensource.org/licenses/MIT
+ *******************************************************************************/
 
 package io.nats.connector;
 
@@ -104,7 +110,8 @@ public class Connector implements Runnable
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            logger.error("Exception:  ", e.getMessage());
+            throw e;
         }
     }
 
