@@ -31,12 +31,13 @@ import java.util.Map.Entry;
 import java.util.List;
 
 /**
- * This is the Redis Pub/Sub connector plugin.
- *
+ * A Redis publish/subscribe connector plugin.
+ * <p>
  * It reads a configuration file from a provided url to direct
  * the connector to bridge NATS and Redis.
- *
- * The file is JSON has the following structure:
+ * <p>
+ * The file is JSON formatted with the following structure:
+ * <pre>
  * {
  *   "host" : "localhost",
  *   "port" : 6379,
@@ -54,31 +55,41 @@ import java.util.List;
  *     }
  *   ]
  * }
- *
+ * </pre>
+ * <p>
  * NATs publishing to Redis.Export will send messages to Redis on channel
  * NATS.import.
- *
+ * <p>
  * Redis publishing to NATS.Export will send messages to NATS on subject
  * Redis.Import.
- *
+ * <p>
  * This is highly customizable by adding multiple subscriptions.
- *
+ * <p>
  * Wildcards/Patters are not yet supported.
- *
+ * <p>
  * Take care to avoid circular routes generated
  * by overlapping maps should be avoided.
- *
- * Basic circular route detection is performed, but could be
- * easily achieved through NATS wildcarding or Redis patterns.
- *
- * While bad, it does provide a nice stress test for Redis.
  */
 public class RedisPubSubPlugin implements NATSConnectorPlugin  {
 
+    /**
+     * The property location to specify a configuration URL.
+     */
     static public final String CONFIG_URL = "nats.io.connector.plugins.redispubsub.configurl";
 
+    /**
+     * Default redis host.
+     */
     static public final String DEFAULT_REDIS_HOST = "localhost";
+
+    /**
+     * Default redis port.
+     */
     static public final int DEFAULT_REDIS_PORT = 6379;
+
+    /**
+     * Default redis timeout.
+     */
     static public final int DEFAULT_REDIS_TIMEOUT = 2000;
 
     NATSConnector connector = null;

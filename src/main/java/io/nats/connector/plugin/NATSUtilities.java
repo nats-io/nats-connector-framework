@@ -27,7 +27,7 @@ public class NATSUtilities {
      *
      * @param url url to read from
      * @return url contents as a string
-     * @throws IOException
+     * @throws IOException The uri cannot be read.
      */
     public static String readFromUrl(String url) throws IOException
     {

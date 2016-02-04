@@ -12,6 +12,11 @@ import io.nats.client.Connection;
 import io.nats.client.ConnectionFactory;
 import io.nats.client.MessageHandler;
 
+/**
+ * Interface for the utility class passed to the plug-in, allowing additional
+ * NATS functionality such as publishing messsages and subscribing to
+ * subjects.
+ */
 public interface NATSConnector {
 
     /**
