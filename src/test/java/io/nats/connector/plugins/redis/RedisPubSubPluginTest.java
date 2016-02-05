@@ -358,7 +358,7 @@ public class RedisPubSubPluginTest {
     @Before
     public void initialize()
     {
-        System.setProperty(Connector.USER_PROP_PLUGIN_CLASS, RedisPubSubPlugin.class.getName());
+        System.setProperty(Connector.PLUGIN_CLASS, RedisPubSubPlugin.class.getName());
 
         // Enable tracing for debugging as necessary.
         //System.setProperty("org.slf4j.simpleLogger.log.io.nats.connector.plugins.redis.RedisPubSubPlugin", "trace");
