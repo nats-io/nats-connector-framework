@@ -331,7 +331,7 @@ public interface NATSConnector {
 ## TODO
 
 ### Connector
-- [ ] Travis CI
+- [X] Travis CI
 - [ ] Containerize
 - [ ] Kafka Plugin
 - [X] Maven Central
