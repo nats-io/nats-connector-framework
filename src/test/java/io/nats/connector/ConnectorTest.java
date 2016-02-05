@@ -32,7 +32,7 @@ public class ConnectorTest {
     public void testRun() throws Exception {
 
         try {
-            System.setProperty(Connector.USER_PROP_PLUGIN_CLASS, this.getClass().getCanonicalName());
+            System.setProperty(Connector.PLUGIN_CLASS, this.getClass().getCanonicalName());
             new Connector().run();
         }
         catch (Exception e)
@@ -43,7 +43,7 @@ public class ConnectorTest {
 
         try {
             // unable to find.
-            System.setProperty(Connector.USER_PROP_PLUGIN_CLASS, "missing.gone.nothere.awol");
+            System.setProperty(Connector.PLUGIN_CLASS, "missing.gone.nothere.awol");
             new Connector().run();
         }
         catch (Exception e)
@@ -53,7 +53,7 @@ public class ConnectorTest {
 
         try {
             // The plugin throws an exception.
-            System.setProperty(Connector.USER_PROP_PLUGIN_CLASS, ExceptionTestPlugin.class.getName());
+            System.setProperty(Connector.PLUGIN_CLASS, ExceptionTestPlugin.class.getName());
             new Connector().run();
         }
         catch (Exception e)
@@ -61,7 +61,7 @@ public class ConnectorTest {
             System.out.println("Received Expected Exception: " + e.getMessage());
         }
 
-        System.setProperty(Connector.USER_PROP_PLUGIN_CLASS, NatsTestPlugin.class.getName());
+        System.setProperty(Connector.PLUGIN_CLASS, NatsTestPlugin.class.getName());
         new Connector().run();
     }
 }

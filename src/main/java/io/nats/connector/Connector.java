@@ -46,7 +46,7 @@ public class Connector implements Runnable
     /**
      * Name of the property to set the plugin class name.
      */
-    static public final String USER_PROP_PLUGIN_CLASS = "com.io.nats.connector.plugin";
+    static public final String PLUGIN_CLASS = "io.nats.connector.plugin";
 
     static final Logger logger = LoggerFactory.getLogger(Connector.class);
 
@@ -140,10 +140,10 @@ public class Connector implements Runnable
 
         traceProperties();
 
-        String className = gwProps.getProperty(USER_PROP_PLUGIN_CLASS);
+        String className = gwProps.getProperty(PLUGIN_CLASS);
         if (className == null)
         {
-            logger.error("Required property " + USER_PROP_PLUGIN_CLASS + " is not set.");
+            logger.error("Required property " + PLUGIN_CLASS + " is not set.");
             throw new Exception("Connector plugin class not set.");
         }
 
