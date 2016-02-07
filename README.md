@@ -9,7 +9,7 @@ A pluggable [Java](http://www.java.com) based service to bridge the [NATS messag
 
 ## Summary
 
-The NATS connector is provided to facilitate the bridging of NATS and other technologies with a general, easy to use, plug-in framework.  General application tasks and NATS connectivity are taken care of, allowing a developer to focus on the technology rather than application development.  The java platform was chosen to reach most existing technologies today.
+The NATS connector is provided to facilitate the bridging of NATS and other technologies with an easy to use plug-in framework.  General application tasks and NATS connectivity are implemented, allowing a developer to focus on integration rather than application development tasks.  The java platform was chosen as to reach as many technologies as possible.
 
 Some plug-ins will be provided and maintained by Apcera.
 
@@ -19,7 +19,7 @@ Some plug-ins will be provided and maintained by Apcera.
 
 #### Releases
 
-The NATS connector is currently alpha and there are no official releases.
+The NATS connector is currently alpha; there are no official maven releases at this time.
 
 #### Snapshots
 
@@ -64,8 +64,7 @@ mvn package verify
 ```
 The jar file will be built in the `target` directory. Then copy the jar file to your classpath and you're all set.
 
-NOTE: running the unit tests requires that `gnatsd` be installed on your system and available in your executable search path.  For the NATS redis plugin to pass tests, the redis server must be installed and running at the default port.
-
+NOTE: running the unit tests requires that `gnatsd` be installed on your system and available in your executable search path.  For the NATS redis plugin a redis server must be installed and running locally at the default port.
 
 ### Source code (this repository)
 To download the source code:
@@ -86,9 +85,9 @@ mvn verify package
 * io.nats.connector.plugins - Out of the box plugins, developed by Apcera.
 
 ## Configuration
-On the NATS side, it is very simple, simply set java properties NATS will use.  (See jnats)
+NATS configuration is set through the jnats client library properties and passed into the jvm.  The properties are described [here](http://nats-io.github.io/jnats/io/nats/client/Constants.html)
 
-There is only one NATS connector parameter, which specifies the plugin class used.
+There is only one NATS connector property, which specifies the plugin class used.
 
 com.io.nats.connector.plugin=classname of the plugin
 
@@ -99,7 +98,7 @@ com.io.nats.connector.plugin=io.nats.connector.plugins.redis.RedisPubSubPlugin
 
 ## Running the connector
 
-To launch the connector, there are two approaches - invoking the connector as an application or from your application.
+There are two ways to launch the connector - invoking the connector as an application or programatically from your own application.
 
 To invoke the connector from an application:
 ```
@@ -162,8 +161,7 @@ The Redis Pub/Sub plugin configuration file read at the URI must have the follow
 * Port is the redis port.
 * Timeout is the Redis timeout.
 
-The nats_to_redis_map array is a list of NATS subjects mapped to Redis channels.  NATS wildcarding is supported.  
-So, in this case, any messages published to Export.Redis in the NATS cluster will be received, and published onto
+The nats_to_redis_map array is a list of NATS subjects mapped to Redis channels.  NATS wildcarding is not supported at this time. So, in this case, any messages published to Export.Redis in the NATS cluster will be received, and published onto
 the Redis Channel "Import_NATS".
 
 From the other direction, any message published from redis on the Export_NATS channel, will be published into
@@ -177,7 +175,7 @@ Basic circular route detection is performed, but is not considered a fatal error
 
 ## Plugin Development
 
-Plugin development is straightforward, simply implement the NATSConnectorPlugin interface in a class, then when launching the NATS connector, reference the class in the Connector.PLUGIN_CLASS
+Plugin development is very straightforward, simply reference the plugin with maven coordinates above, implement the NATSConnectorPlugin interface , then when launching the NATS connector, reference your plugin with the Connector.PLUGIN_CLASS property.
 
 
 ```java
@@ -247,7 +245,7 @@ public interface NATSConnectorPlugin {
 ```
 
 Most plugins will require certain NATS functionality.  For convenience a NATS Connector object is passed to the plugin after
-NATS has been initialized.  If additional NATS functionality is required, the Connection and Connection factory can be obtained.
+NATS has been initialized.  If additional NATS functionality is required, the Connection and Connection factory can be obtained for advanced usage.
 ```java
 public interface NATSConnector {
 
@@ -332,8 +330,9 @@ public interface NATSConnector {
 
 ### Connector
 - [X] Travis CI
-- [ ] Containerize
+- [ ] RabbitMQ plugin
 - [ ] Kafka Plugin
+- [ ] Create containers
 - [X] Maven Central
 
 ### Redis Plugin
@@ -347,5 +346,7 @@ public interface NATSConnector {
 * [RabbitMQ](https://www.rabbitmq.com/api-guide.html)
 * [ElastiSearch](https://www.elastic.co/guide/en/elasticsearch/client/java-api/current/client.html)
 * [JMS](http://docs.oracle.com/javaee/6/api/javax/jms/package-summary.html)
-* File Based - A simple basic file xfer utility
+* File Transfer - A basic file xfer utility
 * [IBM MQ](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_7.5.0/com.ibm.mq.dev.doc/q030520_.htm)
+
+Suggestions and implementations are always welcome!
