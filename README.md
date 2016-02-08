@@ -13,6 +13,8 @@ The NATS connector is provided to facilitate the bridging of NATS and other tech
 
 Some plug-ins will be provided and maintained by Apcera.
 
+Documentation can be found [here](http://nats-io.github.io/nats-connector).
+
 ## Installation
 
 ### Maven Central
@@ -85,7 +87,7 @@ mvn verify package
 * io.nats.connector.plugins - Out of the box plugins, developed by Apcera.
 
 ## Configuration
-NATS configuration is set through the jnats client library properties and passed into the jvm.  The properties are described [here](http://nats-io.github.io/jnats/io/nats/client/Constants.html)
+NATS configuration is set through the jnats client library properties and cann be passed into the jvm, or specified in a configuration file.  The properties are described [here](http://nats-io.github.io/jnats/io/nats/client/Constants.html).
 
 There is only one NATS connector property, which specifies the plugin class used.
 
@@ -102,19 +104,19 @@ There are two ways to launch the connector - invoking the connector as an applic
 
 To invoke the connector from an application:
 ```
-System.setProperty(Connector.PLUGIN_CLASS, <your plugin class name>);
+System.setProperty(Connector.PLUGIN_CLASS, <plugin class name>);
 new Connector().run();
 ```
 or as an application:
 ```
-java -Dio.nats.connector.plugin=< plugin class name> io.nats.connector.Connector
+java -Dio.nats.connector.plugin=<plugin class name> io.nats.connector.Connector
 ```
 
 If not using maven, ensure your classpath includes the most current nats-connector and jnats archives, as well as java archives compatible with jedis-2.7.3.jar, commons-pool2-2.4.2.jar, slf4j-simple-1.7.14.jar, slf4j-api-1.7.14.jar, jnats-0.3.1.jar, and json-20151123.jar.
 
 ## Apcera Supported Plugins
 
-### Redis plugin
+### Redis Publish Subscribe Plugin
 
 The redis plugin is:
 ```
@@ -123,8 +125,7 @@ com.io.nats.connector.plugins.redis.RedisPubSubPlugin
 
 #### Configuration
 
-The NATS Redis plugin is configured by specifying a url that returns JSON file as a system property.  In this example, 
-the url specifies a local file.  It can be any location that meets the URI standard.
+The NATS Redis publish pubscribe plugin is configured by specifying a url that returns JSON file as a system property.  In this example, the url specifies a local file.  It can be any location that meets the URI standard.
 
 ```
 -Dnats.io.connector.plugins.redispubsub.configurl="file:///Users/colinsullivan/redis_nats_connector.json"
@@ -175,7 +176,7 @@ Basic circular route detection is performed, but is not considered a fatal error
 
 ## Plugin Development
 
-Plugin development is very straightforward, simply reference the plugin with maven coordinates above, implement the NATSConnectorPlugin interface , then when launching the NATS connector, reference your plugin with the Connector.PLUGIN_CLASS property.
+Plugin development is very straightforward, simply reference the plugin with maven coordinates above, implement the NATSConnectorPlugin interface, then when launching the NATS connector, reference your plugin with the Connector.PLUGIN_CLASS property.
 
 
 ```java
@@ -244,8 +245,7 @@ public interface NATSConnectorPlugin {
 }
 ```
 
-Most plugins will require certain NATS functionality.  For convenience a NATS Connector object is passed to the plugin after
-NATS has been initialized.  If additional NATS functionality is required, the Connection and Connection factory can be obtained for advanced usage.
+Plugins will require certain level NATS functionality.  For convenience, a NATS Connector object is passed to the plugin after  NATS has been initialized, making it simple to subscribe and publish messages.  If additional NATS functionality is required beyond what is provided, the Connection and Connection factory can be obtained for advanced usage.
 ```java
 public interface NATSConnector {
 
