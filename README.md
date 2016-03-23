@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/nats-io/nats-connector.png?label=ready&title=Ready)](https://waffle.io/nats-io/nats-connector)
 # NATS Connector 
 A pluggable [Java](http://www.java.com) based service to bridge the [NATS messaging system](https://nats.io) and other technologies.
 
