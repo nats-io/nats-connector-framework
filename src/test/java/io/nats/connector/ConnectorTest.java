@@ -61,7 +61,7 @@ public class ConnectorTest {
             System.out.println("Received Expected Exception: " + e.getMessage());
         }
 
-        System.setProperty(Connector.PLUGIN_CLASS, NatsTestPlugin.class.getName());
+        System.setProperty(Connector.PLUGIN_CLASS, io.nats.connector.plugins.test.NATSTestPlugin.class.getName());
         new Connector().run();
     }
 }
