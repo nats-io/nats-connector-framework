@@ -12,7 +12,7 @@ services:
 language: java
 
 jdk:
- - oraclejdk7
+ - oraclejdk8
  
 after_success:
    - mvn clean test jacoco:report coveralls:jacoco
