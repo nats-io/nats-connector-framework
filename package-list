@@ -1,3 +1,2 @@
 io.nats.connector
 io.nats.connector.plugin
-io.nats.connector.plugins.redis
