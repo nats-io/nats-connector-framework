@@ -88,7 +88,7 @@ mvn verify package
 * io.nats.connector.plugins - Out of the box plugins, developed by Apcera.
 
 ## Configuration
-NATS configuration is set through the jnats client library properties and cann be passed into the jvm, or specified in a configuration file.  The properties are described [here](http://nats-io.github.io/jnats/io/nats/client/Constants.html).
+NATS configuration is set through the jnats client library properties and can be passed into the jvm, or specified in a configuration file.  The properties are described [here](http://nats-io.github.io/jnats/io/nats/client/Constants.html).
 
 There is only one NATS connector property, which specifies the plugin class used.
 
