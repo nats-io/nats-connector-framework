@@ -6,7 +6,7 @@
  * http://opensource.org/licenses/MIT
  *******************************************************************************/
 
-package io.nats.connector;
+package io.nats.connector.plugins.test;
 
 import io.nats.client.Message;
 import io.nats.client.ConnectionFactory;
@@ -18,11 +18,11 @@ import org.slf4j.Logger;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class NatsTestPlugin implements NATSConnectorPlugin  {
+public class NATSTestPlugin implements NATSConnectorPlugin  {
     NATSConnector connector = null;
     Logger logger = null;
 
-    public NatsTestPlugin() {}
+    public NATSTestPlugin() {}
 
     class PeriodicSender implements Runnable
     {
