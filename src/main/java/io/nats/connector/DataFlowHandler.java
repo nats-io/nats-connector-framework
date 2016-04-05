@@ -283,7 +283,14 @@ class DataFlowHandler implements MessageHandler, NATSConnector {
         if (isRunning.get() == false)
             return;
 
-        connection.publish(msg);
+        try {
+            connection.publish(msg);
+        }
+        catch (Exception ex) {
+            logger.error("Exception publishing: " + ex.getMessage());
+            logger.debug("Exception: " + ex);
+        }
+
     }
 
     public void flush() throws Exception
