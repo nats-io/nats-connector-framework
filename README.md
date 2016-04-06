@@ -1,11 +1,11 @@
-[![Stories in Ready](https://badge.waffle.io/nats-io/nats-connector.png?label=ready&title=Ready)](https://waffle.io/nats-io/nats-connector)
+[![Stories in Ready](https://badge.waffle.io/nats-io/nats-connector-framework.png?label=ready&title=Ready)](https://waffle.io/nats-io/nats-connector-framework)
 # NATS Connector Framework
 A pluggable [Java](http://www.java.com) based framework to bridge the [NATS messaging system](https://nats.io) and other technologies.
 
 [![License MIT](https://img.shields.io/npm/l/express.svg)](http://opensource.org/licenses/MIT)
-[![Build Status](https://travis-ci.org/nats-io/nats-connector.svg?branch=master)](http://travis-ci.org/nats-io/nats-connector)
-[![Javadoc](http://javadoc-badge.appspot.com/io.nats/nats-connector.svg?label=javadoc)](http://nats-io.github.io/nats-connector)
-[![Coverage Status](https://coveralls.io/repos/nats-io/nats-connector/badge.svg?branch=master&service=github)](https://coveralls.io/github/nats-io/nats-connector?branch=master)
+[![Build Status](https://travis-ci.org/nats-io/nats-connector-framework.svg?branch=master)](http://travis-ci.org/nats-io/nats-connector-framework)
+[![Javadoc](http://javadoc-badge.appspot.com/io.nats/nats-connector-framework.svg?label=javadoc)](http://nats-io.github.io/nats-connector-framework)
+[![Coverage Status](https://coveralls.io/repos/nats-io/nats-connector-framework/badge.svg?branch=master&service=github)](https://coveralls.io/github/nats-io/nats-connector-framework?branch=master)
 
 
 ## Summary
@@ -35,7 +35,7 @@ Add the following dependency to your project's `pom.xml`.
     ...
     <dependency>
       <groupId>io.nats</groupId>
-      <artifactId>nats-connector</artifactId>
+      <artifactId>nats-connector-framework</artifactId>
       <version>0.1.5-SNAPSHOT</version>
     </dependency>
   </dependencies>
@@ -57,7 +57,7 @@ If you don't already have your pom.xml configured for using Maven snapshots, you
 #### Building from source code (this repository)
 First, download the source code:
 ```
-git clone git@github.com:nats-io/nats-connector.git .
+git clone git@github.com:nats-io/nats-connector-framework.git .
 ```
 
 To build the library, use [maven](https://maven.apache.org/). From the root directory of the project:
@@ -72,7 +72,7 @@ NOTE: running the unit tests requires that `gnatsd` be installed on your system 
 ### Source code (this repository)
 To download the source code:
 ```
-git clone git@github.com:nats-io/nats-connector.git .
+git clone git@github.com:nats-io/nats-connector-framework.git .
 ```
 
 To build the library, use [maven](https://maven.apache.org/). From the root directory of the project:
@@ -112,7 +112,7 @@ Alternativeyly, one can run the connector framework directly and specify a plug-
 java -Dio.nats.connector.plugin=<plugin class name> io.nats.connector.Connector
 ```
 
-If not using maven, ensure your classpath includes the most current nats-connector and jnats archives, as well as java archives compatible with commons-pool2-2.4.2.jar, slf4j-simple-1.7.14.jar, slf4j-api-1.7.14.jar, jnats-0.3.1.jar, and json-20151123.jar.
+If not using maven, ensure your classpath includes the most current nats-connector-framework and jnats archives, as well as java archives compatible with commons-pool2-2.4.2.jar, slf4j-simple-1.7.14.jar, slf4j-api-1.7.14.jar, jnats-0.3.1.jar, and json-20151123.jar.
 
 ## Apcera Supported Plugins
 
