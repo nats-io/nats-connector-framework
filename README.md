@@ -1,6 +1,6 @@
 [![Stories in Ready](https://badge.waffle.io/nats-io/nats-connector.png?label=ready&title=Ready)](https://waffle.io/nats-io/nats-connector)
 # NATS Connector 
-A pluggable [Java](http://www.java.com) based service to bridge the [NATS messaging system](https://nats.io) and other technologies.
+A pluggable [Java](http://www.java.com) based framework to bridge the [NATS messaging system](https://nats.io) and other technologies.
 
 [![License MIT](https://img.shields.io/npm/l/express.svg)](http://opensource.org/licenses/MIT)
 [![Build Status](https://travis-ci.org/nats-io/nats-connector.svg?branch=master)](http://travis-ci.org/nats-io/nats-connector)
@@ -12,7 +12,7 @@ A pluggable [Java](http://www.java.com) based service to bridge the [NATS messag
 
 The NATS connector is provided to facilitate the bridging of NATS and other technologies with an easy to use plug-in framework.  General application tasks and NATS connectivity are implemented, allowing a developer to focus on integration rather than application development tasks.  The java platform was chosen as to reach as many technologies as possible.
 
-Some plug-ins will be provided and maintained by Apcera.
+Some connector types will be provided and maintained by Apcera.
 
 Documentation can be found [here](http://nats-io.github.io/nats-connector).
 
@@ -101,7 +101,7 @@ com.io.nats.connector.plugin=io.nats.connector.plugins.redis.RedisPubSubPlugin
 
 ## Running the connector
 
-There are two ways to launch the connector - invoking the connector as an application or programatically from your own application.
+There are two ways to launch the connector - invoking the connector as an application, or programatically from your own application.
 
 To invoke the connector from an application:
 ```
@@ -190,7 +190,7 @@ public interface NATSConnectorPlugin {
 }
 ```
 
-Plugins will require certain level NATS functionality.  For convenience, a NATS Connector object is passed to the plugin after  NATS has been initialized, making it simple to subscribe and publish messages.  If additional NATS functionality is required beyond what is provided, the Connection and Connection factory can be obtained for advanced usage.
+Connectors will require a certain level NATS functionality.  For convenience, a NATS Connector object is passed into the connector plugin after NATS has been initialized, making it simple to subscribe and publish messages.  If additional NATS functionality is required beyond what is provided, the Connection and Connection factory can be obtained for advanced usage.
 ```java
 public interface NATSConnector {
 
