@@ -1,5 +1,5 @@
 [![Stories in Ready](https://badge.waffle.io/nats-io/nats-connector.png?label=ready&title=Ready)](https://waffle.io/nats-io/nats-connector)
-# NATS Connector 
+# NATS Connector Framework
 A pluggable [Java](http://www.java.com) based framework to bridge the [NATS messaging system](https://nats.io) and other technologies.
 
 [![License MIT](https://img.shields.io/npm/l/express.svg)](http://opensource.org/licenses/MIT)
@@ -10,11 +10,11 @@ A pluggable [Java](http://www.java.com) based framework to bridge the [NATS mess
 
 ## Summary
 
-The NATS connector is provided to facilitate the bridging of NATS and other technologies with an easy to use plug-in framework.  General application tasks and NATS connectivity are implemented, allowing a developer to focus on integration rather than application development tasks.  The java platform was chosen as to reach as many technologies as possible.
+The NATS connector framework is provided to facilitate the bridging of NATS and other technologies with an easy to use plug-in driven framework.  General application tasks and NATS connectivity are implemented, allowing a developer to focus on integration rather than application development tasks.  The java platform was chosen as to reach as many technologies as possible.
 
 Some connector types will be provided and maintained by Apcera.
 
-Documentation can be found [here](http://nats-io.github.io/nats-connector).
+Documentation can be found [here](http://nats-io.github.io/nats-connector-framework).
 
 ## Installation
 
@@ -22,7 +22,7 @@ Documentation can be found [here](http://nats-io.github.io/nats-connector).
 
 #### Releases
 
-The NATS connector is currently alpha; there are no official maven releases at this time.
+The NATS connector framework is currently alpha; there are no official maven releases at this time.
 
 #### Snapshots
 
@@ -90,7 +90,7 @@ mvn verify package
 ## Configuration
 NATS configuration is set through the jnats client library properties and can be passed into the jvm, or specified in a configuration file.  The properties are described [here](http://nats-io.github.io/jnats/io/nats/client/Constants.html).
 
-There is only one NATS connector property, which specifies the plugin class used.
+There is only one NATS connector framework property, which specifies the plugin class used.
 
 com.io.nats.connector.plugin=classname of the plugin
 
@@ -101,23 +101,22 @@ com.io.nats.connector.plugin=io.nats.connector.plugins.redis.RedisPubSubPlugin
 
 ## Running the connector
 
-There are two ways to launch the connector - invoking the connector as an application, or programatically from your own application.
+Ideally, connectors will have a way to launch themselves, and implementors of a NATS connectors can do this by specifying their plugin class, and running the connector from their code as follows:
 
-To invoke the connector from an application:
 ```
 System.setProperty(Connector.PLUGIN_CLASS, <plugin class name>);
 new Connector().run();
 ```
-or as an application:
+Alternativeyly, one can run the connector framework directly and specify a plug-in:
 ```
 java -Dio.nats.connector.plugin=<plugin class name> io.nats.connector.Connector
 ```
 
-If not using maven, ensure your classpath includes the most current nats-connector and jnats archives, as well as java archives compatible with jedis-2.7.3.jar, commons-pool2-2.4.2.jar, slf4j-simple-1.7.14.jar, slf4j-api-1.7.14.jar, jnats-0.3.1.jar, and json-20151123.jar.
+If not using maven, ensure your classpath includes the most current nats-connector and jnats archives, as well as java archives compatible with commons-pool2-2.4.2.jar, slf4j-simple-1.7.14.jar, slf4j-api-1.7.14.jar, jnats-0.3.1.jar, and json-20151123.jar.
 
 ## Apcera Supported Plugins
 
-* [Redis Publish/Subscribe](https://github.com/nats-io/nats-connector-redis-plugin)
+* [Redis Publish/Subscribe](https://github.com/nats-io/nats-connector-redis)
 
 ## Plugin Development
 
