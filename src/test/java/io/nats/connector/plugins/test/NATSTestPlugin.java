@@ -35,6 +35,7 @@ public class NATSTestPlugin implements NATSConnectorPlugin  {
             String s;
             int count = 2;
 
+            // an override for debugging
             String countStr = System.getProperty("test.msgcount");
             if (countStr != null && countStr.isEmpty() == false)
             {
