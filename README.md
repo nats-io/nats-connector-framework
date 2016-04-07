@@ -275,7 +275,7 @@ public interface NATSConnector {
 ### Connector
 - [X] Travis CI
 - [ ] Differentiate input and output plugins.
-- [ ] Remove dependency chain on Apcera supported plugins.
+- [X] Remove dependency chain on Apcera supported plugins.
 - [ ] RabbitMQ plugin
 - [ ] Kafka Plugin
 - [ ] Create containers
