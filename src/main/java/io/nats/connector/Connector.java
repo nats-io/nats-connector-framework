@@ -119,6 +119,9 @@ public class Connector implements Runnable
      */
     public void shutdown()
     {
+        if (flowHandler == null)
+            return;
+
         flowHandler.shutdown();
     }
 
@@ -157,7 +160,7 @@ public class Connector implements Runnable
     private void usage()
     {
 
-        System.out.printf("java {} -config <properties file>", Connector.class.toString());
+        System.out.printf("java {} -config <properties file>\n", Connector.class.toString());
         System.exit(-1);
     }
 

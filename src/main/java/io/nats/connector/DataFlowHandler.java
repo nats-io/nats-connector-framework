@@ -86,7 +86,7 @@ class DataFlowHandler implements MessageHandler, NATSConnector {
                 plugin.onNATSEvent(NATSEvent.ASYNC_ERROR, ex.getMessage());
             }
             catch (Exception e) {
-                logger.error("Runtime exception in plugin method OnNATSEvent (CLOSED): ", e);
+                logger.error("Runtime exception in plugin method OnNATSEvent (EXCEPTION): ", e);
             }
         }
 
@@ -100,7 +100,7 @@ class DataFlowHandler implements MessageHandler, NATSConnector {
                 plugin.onNATSEvent(NATSEvent.DISCONNECTED, desc);
             }
             catch (Exception e) {
-                logger.error("Runtime exception in plugin method OnNATSEvent (CLOSED): ", e);
+                logger.error("Runtime exception in plugin method OnNATSEvent (DISCONNECTED): ", e);
             }
         }
     }
@@ -326,36 +326,19 @@ class DataFlowHandler implements MessageHandler, NATSConnector {
         }
     }
 
-    public void subscribe(String subject, MessageHandler handler)
+    public void subscribe(String subject, MessageHandler handler) throws Exception
     {
-        if (subject == null)
-            return;
-
-        synchronized (pluginLock)
-        {
-            logger.debug("Plugin subscribe to '{}'.", subject);
-
-            // do not subscribe twice.
-            if (subscriptions.containsKey(subject)) {
-                logger.debug("Subscription already exists.");
-                return;
-            }
-
-            AsyncSubscription s = connection.subscribeAsync(subject, handler);
-            subscriptions.put(subject, s);
-
-            logger.debug("Subscribed.");
-        }
+        subscribe(subject, null, handler);
     }
 
-    public void subscribe(String subject)
+    public void subscribe(String subject) throws Exception
     {
-        subscribe(subject, this);
+        subscribe(subject, null, this);
     }
 
     public void subscribe(String subject, String queue, MessageHandler handler) throws Exception {
 
-        if (subject == null || queue == null)
+        if (subject == null)
             return;
 
         synchronized (pluginLock)
@@ -371,7 +354,7 @@ class DataFlowHandler implements MessageHandler, NATSConnector {
 
             AsyncSubscription s;
 
-            if (queue != null)
+            if (queue == null)
                 s = connection.subscribeAsync(subject, handler);
             else
                 s = connection.subscribeAsync(subject, queue, handler);
