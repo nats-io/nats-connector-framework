@@ -8,8 +8,11 @@
 
 package io.nats.connector.plugins.test;
 
+import io.nats.client.Connection;
 import io.nats.client.Message;
 import io.nats.client.ConnectionFactory;
+import io.nats.client.MessageHandler;
+import io.nats.connector.Connector;
 import io.nats.connector.plugin.NATSConnector;
 import io.nats.connector.plugin.NATSConnectorPlugin;
 import io.nats.connector.plugin.NATSEvent;
@@ -30,13 +33,20 @@ public class NATSTestPlugin implements NATSConnectorPlugin  {
         public void run()
         {
             String s;
+            int count = 2;
+
+            String countStr = System.getProperty("test.msgcount");
+            if (countStr != null && countStr.isEmpty() == false)
+            {
+                count = Integer.parseInt(countStr);
+            }
 
             Message m = new Message();
 
             m.setSubject("foo");
             m.setReplyTo("bar");
 
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < count; i++)
             {
                 s = new String("Message-" + Integer.toString(i));
 
@@ -71,10 +81,58 @@ public class NATSTestPlugin implements NATSConnectorPlugin  {
         return true;
     }
 
+    private void testConnectorAPIs() throws Exception
+    {
+        MessageHandler mh = new MessageHandler() {
+            @Override
+            public void onMessage(Message message) {
+                ;;
+            }
+        };
+
+         // test various combinatitions of subscribes and unsubscribes.
+        connector.subscribe("foo1");
+        connector.subscribe("foo1");
+
+        connector.subscribe("foo2", mh);
+        connector.subscribe("foo2", mh);
+
+        connector.subscribe("foo3", "qg1");
+        connector.subscribe("foo3", "qg1");
+
+        connector.subscribe("foo4", "qg1", mh);
+        connector.unsubscribe("foo1");
+        connector.unsubscribe("foo2");
+        connector.unsubscribe("foo3");
+
+        connector.unsubscribe("foo4");
+        connector.unsubscribe("foo4");
+
+        connector.unsubscribe("unknown");
+        connector.unsubscribe(null);
+
+        connector.flush();
+
+        Connection c = connector.getConnection();
+        if (c == null)
+            throw new Exception("Expected a valid connection.");
+
+        ConnectionFactory cf = connector.getConnectionFactory();
+        if (cf == null)
+            throw new Exception("Expected a valid connection.");
+    }
+
     @Override
     public boolean onNatsInitialized(NATSConnector connector)
     {
         this.connector = connector;
+
+        try {
+            testConnectorAPIs();
+        }
+        catch (Exception ex) {
+            return false;
+        }
 
         logger.info("Starting up.");
 
@@ -97,6 +155,7 @@ public class NATSTestPlugin implements NATSConnectorPlugin  {
     @Override
     public void onShutdown()
     {
+        connector.unsubscribe("foo");
         logger.info("Shutting down.");
     }
 
@@ -143,5 +202,8 @@ public class NATSTestPlugin implements NATSConnectorPlugin  {
             default:
                 logger.info("NATS Event Unrecognized event: " + message);
         }
+
+        // throw exceptions to ensure the framework handles them.
+        throw new RuntimeException("Test framework plugin exception handling.");
     }
 }
