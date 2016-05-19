@@ -132,10 +132,7 @@ Using the framework is optional - you can develop a connector in your technology
  - Unit tests are encouraged and will help accelerate the review process of your connector.
  - MIT licenses are preferred.
 
-Please see our webinar on developing and contributing NATS connectors.
-<div class="embed-responsive embed-responsive-16by9">
-  <iframe width="420" height="315" src="https://www.youtube.com/embed/eEaZw1lc_p8" frameborder="0" allowfullscreen></iframe>
-</div>
+Please see our [webinar](https://www.youtube.com/watch?v=eEaZw1lc_p8) about developing and contributing NATS connectors.
 
 We also have a [blog post](http://nats.io/blog/nats-connector-framework) about using the NATS connector framework.
 
