@@ -119,7 +119,7 @@ If not using maven, ensure your classpath includes the most current nats-connect
 * [Redis Publish/Subscribe](https://github.com/nats-io/nats-connector-redis)
 
 ## Contributing
-Contributing is easy - develop a connector and provide us link to your repository through one of our [communication channels](http://www.nats.io/community).  We highly suggest you join the NATS slack channel!
+Contributing is easy - develop a connector and provide us link to your repository through one of our [communication channels](http://www.nats.io/community).  We highly suggest you join the NATS slack community!
 
 Using the framework is optional - you can develop a connector in your technology of preference.  An accepted connector will get you a limited edition NATS hoodie!
 
@@ -128,8 +128,8 @@ Using the framework is optional - you can develop a connector in your technology
  - Provide Documentation.  Good documentation always drives usage.
  - Aim to meet 75% of use cases for the connector you'd like to contribute.
  - Be configurable, but not overly so.
- - Provide logging/tracing to assist debugging
- - Include Unit Tests - at least 80% code coverage is requested.
+ - Provide logging/tracing to assist debugging.
+ - Unit tests are encouraged and will help accelerate the review process of your connector.
  - MIT licenses are preferred.
 
 Please see our webinar on developing and contributing NATS connectors.
