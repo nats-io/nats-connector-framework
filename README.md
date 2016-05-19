@@ -118,6 +118,27 @@ If not using maven, ensure your classpath includes the most current nats-connect
 
 * [Redis Publish/Subscribe](https://github.com/nats-io/nats-connector-redis)
 
+## Contributing
+Contributing is easy - develop a connector and provide us link to your repository through one of our [communication channels](http://www.nats.io/community).  We highly suggest you join the NATS slack community!
+
+Using the framework is optional - you can develop a connector in your technology of preference.  An accepted connector will get you a limited edition NATS hoodie!
+
+### Guidelines for Acceptance
+
+ - Provide Documentation.  Good documentation always drives usage.
+ - Aim to meet 75% of use cases for the connector you'd like to contribute.
+ - Be configurable, but not overly so.
+ - Provide logging/tracing to assist debugging.
+ - Unit tests are encouraged and will help accelerate the review process of your connector.
+ - MIT licenses are preferred.
+
+Please see our webinar on developing and contributing NATS connectors.
+<div class="embed-responsive embed-responsive-16by9">
+  <iframe width="420" height="315" src="https://www.youtube.com/embed/eEaZw1lc_p8" frameborder="0" allowfullscreen></iframe>
+</div>
+
+We also have a [blog post](http://nats.io/blog/nats-connector-framework) about using the NATS connector framework.
+
 ## Plugin Development
 
 Plugin development is very straightforward, simply reference the plugin with maven coordinates above, implement the NATSConnectorPlugin interface, then when launching the NATS connector, reference your plugin with the Connector.PLUGIN_CLASS property.
@@ -281,7 +302,7 @@ public interface NATSConnector {
 - [ ] Create containers
 - [X] Maven Central
 
-## Other potential plugins 
+## Other potential plugins
 * [Kafka](http://kafka.apache.org/documentation.html)
 * [HDFS](https://hadoop.apache.org/docs/r2.6.2/api/org/apache/hadoop/fs/FileSystem.html)
 * [RabbitMQ](https://www.rabbitmq.com/api-guide.html)
