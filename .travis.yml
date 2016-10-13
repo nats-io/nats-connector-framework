@@ -1,5 +1,4 @@
 before_install:
- - export JAVA_OPTS=-Xmx2g
  - echo "MAVEN_OPTS='-Xmx2g -XX:+TieredCompilation -XX:TieredStopAtLevel=1'" > ~/.mavenrc
 
 language: java

@@ -75,11 +75,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <sourceFileExcludes>
-                        <sourceFileExclude>**/ConnectionImpl.java</sourceFileExclude>
-                    </sourceFileExcludes>
-                </configuration>
+                <configuration />
             </plugin>
 
             <plugin>
@@ -334,7 +330,7 @@
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j-version}</version>
         </dependency>
-                <dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
