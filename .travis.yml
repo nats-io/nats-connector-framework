@@ -1,13 +1,15 @@
 before_install:
-  - export GOPATH=$HOME/gopath
-  - export PATH=$PATH:$GOPATH/bin
-  - export JAVA_OPTS=-Xmx2g
+ - export JAVA_OPTS=-Xmx2g
+ - echo "MAVEN_OPTS='-Xmx2g -XX:+TieredCompilation -XX:TieredStopAtLevel=1'" > ~/.mavenrc
 
 language: java
 
 jdk:
  - oraclejdk8
  
+script:
+ - mvn clean verify -B -U
+
 after_success:
    - mvn coveralls:report
 
