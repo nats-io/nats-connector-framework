@@ -90,7 +90,7 @@
                 <executions>
                     <execution>
                         <id>prepare</id>
-                        <phase>pre-integration-test</phase>
+                        <phase>generate-sources</phase>
                         <configuration>
                             <target xmlns:unless="ant:unless"
                                 xmlns:if="ant:if" name="copy-server-exec"

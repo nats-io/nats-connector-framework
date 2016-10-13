@@ -1,11 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2016 Apcera Inc.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the MIT License (MIT)
- * which accompanies this distribution, and is available at
- * http://opensource.org/licenses/MIT
+ * Copyright (c) 2015-2016 Apcera Inc. All rights reserved. This program and the accompanying
+ * materials are made available under the terms of the MIT License (MIT) which accompanies this
+ * distribution, and is available at http://opensource.org/licenses/MIT
  *******************************************************************************/
+
 package io.nats.connector;
+
+import io.nats.client.Connection;
+import io.nats.client.ConnectionFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,36 +15,49 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class UnitTestUtilities {
-
+    // final Object mu = new Object();
     static NATSServer defaultServer = null;
     Process authServerProcess = null;
 
-    public static synchronized void startDefaultServer() {
+    static synchronized NATSServer runDefaultServer() {
+        return runDefaultServer(false);
+    }
+
+    static synchronized NATSServer runDefaultServer(boolean debug) {
+        NATSServer ns = new NATSServer(debug);
+        sleep(100, TimeUnit.MILLISECONDS);
+        return ns;
+    }
+
+    static synchronized Connection newDefaultConnection() throws IOException, TimeoutException {
+        return new ConnectionFactory().createConnection();
+    }
+
+    static synchronized void startDefaultServer() {
+        startDefaultServer(false);
+    }
+
+    static synchronized void startDefaultServer(boolean debug) {
         if (defaultServer == null) {
-            defaultServer = new NATSServer();
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-            }
+            defaultServer = runDefaultServer(debug);
         }
     }
 
-    public static synchronized void stopDefaultServer() {
+    static synchronized void stopDefaultServer() {
         if (defaultServer != null) {
             defaultServer.shutdown();
             defaultServer = null;
         }
     }
 
-    public static synchronized void bounceDefaultServer(int delayMillis) {
+    static synchronized void bounceDefaultServer(int delayMillis) {
         stopDefaultServer();
-        try {
-            Thread.sleep(delayMillis);
-        } catch (InterruptedException e) {
-            // NOOP
-        }
+        sleep(delayMillis);
         startDefaultServer();
     }
 
@@ -50,26 +65,28 @@ public class UnitTestUtilities {
         authServerProcess = Runtime.getRuntime().exec("gnatsd -config auth.conf");
     }
 
-    NATSServer createServerOnPort(int p) {
-        NATSServer n = new NATSServer(p);
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-        }
+    static NATSServer runServerOnPort(int p) {
+        return runServerOnPort(p, false);
+    }
+
+    static NATSServer runServerOnPort(int p, boolean debug) {
+        NATSServer n = new NATSServer(p, debug);
+        sleep(500);
         return n;
     }
 
-    NATSServer createServerWithConfig(String configFile) {
-        NATSServer n = new NATSServer(configFile);
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-        }
+    static NATSServer runServerWithConfig(String configFile) {
+        return runServerWithConfig(configFile, false);
+    }
+
+    static NATSServer runServerWithConfig(String configFile, boolean debug) {
+        NATSServer n = new NATSServer(configFile, debug);
+        sleep(500);
         return n;
     }
 
-    public static String getCommandOutput(String command) {
-        String output = null;       //the string to return
+    static String getCommandOutput(String command) {
+        String output = null; // the string to return
 
         Process process = null;
         BufferedReader reader = null;
@@ -79,13 +96,16 @@ public class UnitTestUtilities {
         try {
             process = Runtime.getRuntime().exec(command);
 
-            //Get stream of the console running the command
+            // Get stream of the console running the command
             stream = process.getInputStream();
             streamReader = new InputStreamReader(stream);
             reader = new BufferedReader(streamReader);
 
-            String currentLine = null;  //store current line of output from the cmd
-            StringBuilder commandOutput = new StringBuilder();  //build up the output from cmd
+            String currentLine = null; // store current line of output from the
+                                       // cmd
+            StringBuilder commandOutput = new StringBuilder(); // build up the
+                                                               // output from
+                                                               // cmd
             while ((currentLine = reader.readLine()) != null) {
                 commandOutput.append(currentLine + "\n");
             }
@@ -103,7 +123,7 @@ public class UnitTestUtilities {
             System.err.println("Cannot retrieve output of command");
             System.err.println(e);
         } finally {
-            //Close all inputs / readers
+            // Close all inputs / readers
 
             if (stream != null) {
                 try {
@@ -127,7 +147,7 @@ public class UnitTestUtilities {
                 }
             }
         }
-        //Return the output from the command - may be null if an error occured
+        // Return the output from the command - may be null if an error occured
         return output;
     }
 
@@ -140,8 +160,9 @@ public class UnitTestUtilities {
             e.printStackTrace();
         }
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"))) {
-            for (String line; (line = reader.readLine()) != null; ) {
+        try (BufferedReader reader =
+                new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"))) {
+            for (String line; (line = reader.readLine()) != null;) {
                 System.out.println(line);
             }
         } catch (IOException e) {
@@ -151,10 +172,35 @@ public class UnitTestUtilities {
 
     }
 
-    static void sleep(int millis) {
+    static void sleep(int timeout) {
+        sleep(timeout, TimeUnit.MILLISECONDS);
+    }
+
+    static void sleep(int duration, TimeUnit unit) {
         try {
-            Thread.sleep(millis);
+            unit.sleep(duration);
         } catch (InterruptedException e) {
+            /* NOOP */
         }
     }
+
+    static boolean await(CountDownLatch latch) {
+        return await(latch, 5, TimeUnit.SECONDS);
+    }
+
+    static boolean await(CountDownLatch latch, long timeout, TimeUnit unit) {
+        boolean val = false;
+        try {
+            val = latch.await(timeout, unit);
+        } catch (InterruptedException e) {
+        }
+        return val;
+    }
+
+
+    // static synchronized void setLogLevel(ch.qos.logback.classic.Level level) {
+    // ch.qos.logback.classic.Logger lbLog =
+    // (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger("io.nats.client");
+    // lbLog.setLevel(level);
+    // }
 }

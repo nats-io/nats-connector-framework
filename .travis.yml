@@ -3,9 +3,6 @@ before_install:
   - export PATH=$PATH:$GOPATH/bin
   - export JAVA_OPTS=-Xmx2g
 
-install:
-  - go get github.com/nats-io/gnatsd
-
 language: java
 
 jdk:
