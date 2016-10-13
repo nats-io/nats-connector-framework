@@ -5,8 +5,7 @@ A pluggable [Java](http://www.java.com) based framework to bridge the [NATS mess
 [![License MIT](https://img.shields.io/npm/l/express.svg)](http://opensource.org/licenses/MIT)
 [![Build Status](https://travis-ci.org/nats-io/nats-connector-framework.svg?branch=master)](http://travis-ci.org/nats-io/nats-connector-framework)
 [![Javadoc](http://javadoc-badge.appspot.com/io.nats/nats-connector-framework.svg?label=javadoc)](http://nats-io.github.io/nats-connector-framework)
-[![Coverage Status](https://coveralls.io/repos/nats-io/nats-connector-framework/badge.svg?branch=master&service=github)](https://coveralls.io/github/nats-io/nats-connector-framework?branch=master)
-
+[![Coverage Status](https://coveralls.io/repos/github/nats-io/nats-connector-framework/badge.svg?branch=master)](https://coveralls.io/github/nats-io/nats-connector-framework?branch=master)
 
 ## Summary
 
