@@ -1,4 +1,5 @@
 # Eclipse stuff
+.checkstyle
 .classpath
 .project
 .settings/
@@ -28,3 +29,4 @@ hs_err_pid*
 # NATS stuff
 gnatsd.log
 currentRedisConfig.json
+config.props

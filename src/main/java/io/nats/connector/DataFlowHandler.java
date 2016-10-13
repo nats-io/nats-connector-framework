@@ -1,91 +1,91 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2016 Apcera Inc.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the MIT License (MIT)
- * which accompanies this distribution, and is available at
- * http://opensource.org/licenses/MIT
+ * Copyright (c) 2012, 2016 Apcera Inc. All rights reserved. This program and the accompanying
+ * materials are made available under the terms of the MIT License (MIT) which accompanies this
+ * distribution, and is available at http://opensource.org/licenses/MIT
  *******************************************************************************/
 
 package io.nats.connector;
 
-import io.nats.client.*;
+import io.nats.client.AsyncSubscription;
+import io.nats.client.ClosedCallback;
+import io.nats.client.Connection;
+import io.nats.client.ConnectionEvent;
+import io.nats.client.ConnectionFactory;
+import io.nats.client.DisconnectedCallback;
+import io.nats.client.ExceptionHandler;
+import io.nats.client.Message;
+import io.nats.client.MessageHandler;
+import io.nats.client.NATSException;
+import io.nats.client.ReconnectedCallback;
+import io.nats.client.Subscription;
 import io.nats.connector.plugin.NATSConnector;
 import io.nats.connector.plugin.NATSConnectorPlugin;
+import io.nats.connector.plugin.NATSEvent;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import io.nats.connector.plugin.NATSEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 class DataFlowHandler implements MessageHandler, NATSConnector {
 
-    private NATSConnectorPlugin plugin     = null;
+    private NATSConnectorPlugin plugin = null;
 
     // Rely heavily on NATS locking, but protect data structures here
     // with the plugin lock.
-    private Object              pluginLock   = new Object();
-    private HashMap             subscriptions = new HashMap<String, Subscription>();
+    private Object pluginLock = new Object();
+    private HashMap<String, Subscription> subscriptions = new HashMap<String, Subscription>();
 
-    private Properties          properties = null;
-    private Logger              logger     = null;
+    private Properties properties = null;
+    private Logger logger = null;
 
-    private Object              runningLock = new Object();
+    private Object runningLock = new Object();
 
     private Object cleanupLock = new Object();
     private boolean hasCleanedUp = false;
 
-    // TODO eval - this for performance.  Is it necessary?
-    private AtomicBoolean     isRunning   = new AtomicBoolean();
+    // TODO eval - this for performance. Is it necessary?
+    private AtomicBoolean isRunning = new AtomicBoolean();
 
     private ConnectionFactory connectionFactory = null;
-    private Connection        connection        = null;
+    private Connection connection = null;
 
-    public DataFlowHandler(NATSConnectorPlugin plugin, Properties props, Logger logger)
-    {
+    public DataFlowHandler(NATSConnectorPlugin plugin, Properties props, Logger logger) {
         this.plugin = plugin;
         this.properties = props;
         this.logger = logger;
     }
 
-    class EventHandlers implements ClosedCallback, DisconnectedCallback,
-            ExceptionHandler, ReconnectedCallback
-    {
+    class EventHandlers
+            implements ClosedCallback, DisconnectedCallback, ExceptionHandler, ReconnectedCallback {
         @Override
-        public void onReconnect(ConnectionEvent event)
-        {
+        public void onReconnect(ConnectionEvent event) {
             try {
                 String desc = "NATS Connection reconnected.";
                 logger.info(desc);
                 plugin.onNATSEvent(NATSEvent.RECONNECTED, desc);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.error("Runtime exception in plugin method OnNATSEvent (RECONNECTED): ", e);
             }
         }
 
         @Override
-        public void onClose(ConnectionEvent event)
-        {
+        public void onClose(ConnectionEvent event) {
             try {
                 plugin.onNATSEvent(NATSEvent.CLOSED, "NATS Connection closed.");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.error("Runtime exception in plugin method OnNATSEvent (CLOSED): ", e);
             }
         }
 
-        public void onException(NATSException ex)
-        {
+        public void onException(NATSException ex) {
             try {
-                logger.error("Asynchronous error: exception: {}",
-                        ex.getMessage());
+                logger.error("Asynchronous error: exception: {}", ex.getMessage());
 
                 plugin.onNATSEvent(NATSEvent.ASYNC_ERROR, ex.getMessage());
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.error("Runtime exception in plugin method OnNATSEvent (EXCEPTION): ", e);
             }
         }
@@ -98,15 +98,13 @@ class DataFlowHandler implements MessageHandler, NATSConnector {
                 logger.debug(desc);
 
                 plugin.onNATSEvent(NATSEvent.DISCONNECTED, desc);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 logger.error("Runtime exception in plugin method OnNATSEvent (DISCONNECTED): ", e);
             }
         }
     }
 
-    private void setup() throws Exception
-    {
+    private void setup() throws Exception {
         connectionFactory = new ConnectionFactory(properties);
         EventHandlers eh = new EventHandlers();
 
@@ -126,90 +124,69 @@ class DataFlowHandler implements MessageHandler, NATSConnector {
         logger.debug("Connected to NATS cluster.");
     }
 
-    private void teardown()
-    {
-        try
-        {
-            if (subscriptions != null)
-            {
+    private void teardown() {
+        try {
+            if (subscriptions != null) {
                 for (Object s : subscriptions.values())
                     ((Subscription) s).unsubscribe();
 
                 subscriptions.clear();
                 subscriptions = null;
             }
+        } catch (Exception e) {
         }
-        catch (Exception e) {}
 
-        try
-        {
+        try {
             if (connection != null)
-                 connection.close();
+                connection.close();
+        } catch (Exception e) {
         }
-        catch (Exception e) {}
 
         logger.debug("Closed connection to NATS cluster.");
     }
 
     /*
-     *   TODO:  How well can request reply work?  Need additional support?
+     * TODO: How well can request reply work? Need additional support?
      */
-    public void onMessage(Message m)
-    {
-        try
-        {
+    public void onMessage(Message m) {
+        try {
             plugin.onNATSMessage(m);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.error("Runtime exception thrown by plugin (onMessage): ", e);
         }
     }
 
-    private boolean invokeOnStartup(ConnectionFactory factory)
-    {
+    private boolean invokeOnStartup(ConnectionFactory factory) {
 
         logger.debug("OnStartup");
-        try
-        {
+        try {
             return plugin.onStartup(LoggerFactory.getLogger(plugin.getClass().getName()), factory);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.error("Runtime exception thrown by plugin (OnStartup): ", e);
             return false;
         }
     }
 
-    private boolean invokeOnNatsInitialized()
-    {
+    private boolean invokeOnNatsInitialized() {
         logger.trace("OnNatsInitialized");
-        try
-        {
+        try {
             return plugin.onNatsInitialized(this);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.error("Runtime exception thrown by plugin (OnNatsInitialized): ", e);
             return false;
         }
     }
 
-    private void invokePluginShutdown()
-    {
+    private void invokePluginShutdown() {
         logger.trace("OnShutdown");
-        try
-        {
+        try {
             plugin.onShutdown();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.error("Runtime exception thrown by plugin (OnShutdown): ", e);
         }
     }
 
-    public void process()
-    {
+    public void process() {
         logger.debug("Setting up NATS Connector.");
 
         boolean running = true;
@@ -217,16 +194,14 @@ class DataFlowHandler implements MessageHandler, NATSConnector {
         try {
             // connect to the NATS cluster
             setup();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.error("Setup error: " + e.getMessage());
             logger.debug("Exception: ", e);
             cleanup();
             return;
         }
 
-        if (!invokeOnNatsInitialized())
-        {
+        if (!invokeOnNatsInitialized()) {
             logger.error("Plugin failed to start.  Exiting.");
             cleanup();
             return;
@@ -236,14 +211,11 @@ class DataFlowHandler implements MessageHandler, NATSConnector {
 
         isRunning.set(true);
 
-        while (running)
-        {
-            synchronized(runningLock)
-            {
+        while (running) {
+            synchronized (runningLock) {
                 try {
                     runningLock.wait();
-                }
-                catch (InterruptedException e) {
+                } catch (InterruptedException e) {
                     // As of java 1.6, Object.wait can be woken up spuriously,
                     // so we need to check if we are still running.
                 }
@@ -255,10 +227,8 @@ class DataFlowHandler implements MessageHandler, NATSConnector {
         cleanup();
     }
 
-    public void cleanup()
-    {
-        synchronized (cleanupLock)
-        {
+    public void cleanup() {
+        synchronized (cleanupLock) {
             if (hasCleanedUp)
                 return;
 
@@ -278,23 +248,20 @@ class DataFlowHandler implements MessageHandler, NATSConnector {
     /*
      * NATSConnector
      */
-    public void publish(Message msg)
-    {
+    public void publish(Message msg) {
         if (isRunning.get() == false)
             return;
 
         try {
             connection.publish(msg);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             logger.error("Exception publishing: " + ex.getMessage());
             logger.debug("Exception: " + ex);
         }
 
     }
 
-    public void flush() throws Exception
-    {
+    public void flush() throws Exception {
         // if the connector is shutting down, then we silently fail.
         if (isRunning.get() == false)
             return;
@@ -304,15 +271,12 @@ class DataFlowHandler implements MessageHandler, NATSConnector {
 
         try {
             connection.flush();
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             throw new Exception("Unable to flush NATS connection.", ex);
         }
     }
 
-    public void shutdown()
-    {
+    public void shutdown() {
         if (isRunning.get() == false)
             return;
 
@@ -320,19 +284,16 @@ class DataFlowHandler implements MessageHandler, NATSConnector {
 
         isRunning.set(false);
 
-        synchronized (runningLock)
-        {
+        synchronized (runningLock) {
             runningLock.notify();
         }
     }
 
-    public void subscribe(String subject, MessageHandler handler) throws Exception
-    {
+    public void subscribe(String subject, MessageHandler handler) throws Exception {
         subscribe(subject, null, handler);
     }
 
-    public void subscribe(String subject) throws Exception
-    {
+    public void subscribe(String subject) throws Exception {
         subscribe(subject, null, this);
     }
 
@@ -341,9 +302,8 @@ class DataFlowHandler implements MessageHandler, NATSConnector {
         if (subject == null)
             return;
 
-        synchronized (pluginLock)
-        {
-                logger.debug("Plugin subscribe to '{}', queue '{}'.", subject,
+        synchronized (pluginLock) {
+            logger.debug("Plugin subscribe to '{}', queue '{}'.", subject,
                     (queue == null ? "(none)" : queue));
 
             // do not subscribe twice.
@@ -355,11 +315,9 @@ class DataFlowHandler implements MessageHandler, NATSConnector {
             AsyncSubscription s;
 
             if (queue == null)
-                s = connection.subscribeAsync(subject, handler);
+                s = connection.subscribe(subject, handler);
             else
-                s = connection.subscribeAsync(subject, queue, handler);
-
-            s.start();
+                s = connection.subscribe(subject, queue, handler);
 
             subscriptions.put(subject, s);
         }
@@ -369,13 +327,11 @@ class DataFlowHandler implements MessageHandler, NATSConnector {
         subscribe(subject, queue, null);
     }
 
-    public void unsubscribe(String subject)
-    {
+    public void unsubscribe(String subject) {
         if (subject == null)
             return;
 
-        synchronized (pluginLock)
-        {
+        synchronized (pluginLock) {
             logger.debug("Plugin unsubscribe from '{}'.", subject);
 
             Subscription s = (Subscription) subscriptions.get(subject);
@@ -393,13 +349,11 @@ class DataFlowHandler implements MessageHandler, NATSConnector {
         }
     }
 
-    public Connection getConnection()
-    {
+    public Connection getConnection() {
         return connection;
     }
 
-    public ConnectionFactory getConnectionFactory()
-    {
+    public ConnectionFactory getConnectionFactory() {
         return connectionFactory;
     }
 
