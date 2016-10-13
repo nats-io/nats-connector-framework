@@ -1,18 +1,21 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<!-- Copyright (c) 2015-2016 Apcera Inc. All rights reserved. This program 
+    and the accompanying materials are made available under the terms of the 
+    MIT License (MIT) which accompanies this distribution, and is available at 
+    http://opensource.org/licenses/MIT -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>io.nats</groupId>
         <artifactId>nats-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.6</version>
     </parent>
-    
+
     <groupId>io.nats</groupId>
     <artifactId>nats-connector-framework</artifactId>
     <version>0.1.5-SNAPSHOT</version>
+    <packaging>bundle</packaging>
 
     <name>nats-connector-framework</name>
     <description>Data Connector for NATS Messaging System</description>
@@ -22,19 +25,13 @@
         <url>http://nats.io</url>
         <name>Apcera, Inc.</name>
     </organization>
-    
-    <dependencies>
-        <dependency>
-            <groupId>io.nats</groupId>
-            <artifactId>jnats</artifactId>
-            <version>0.4.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.7.5</version>
-        </dependency>
-    </dependencies>
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <scm>
         <url>https://github.com/nats-io/nats-connector-framework</url>
@@ -49,4 +46,299 @@
         <system>Travis</system>
         <url>https://travis-ci.org/nats-io/nats-connector-framework/</url>
     </ciManagement>
+
+    <properties>
+        <!-- Used to locate the profile specific configuration file. -->
+        <build.profile.id>dev</build.profile.id>
+        <jacoco.it.execution.data.file>${project.build.directory}/coverage-reports/jacoco-it.exec</jacoco.it.execution.data.file>
+        <jacoco.ut.execution.data.file>${project.build.directory}/coverage-reports/jacoco-ut.exec</jacoco.ut.execution.data.file>
+        <!-- Only unit tests are run by default. -->
+        <skip.integration.tests>true</skip.integration.tests>
+        <skip.unit.tests>false</skip.unit.tests>
+
+        <!-- plugin configuration -->
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+
+        <!-- project-specific plugin versions -->
+        <jnats-version>0.6.0</jnats-version>
+
+        <!-- Used for downloading and installing a server binary for tests -->
+        <server.version>0.9.4</server.version>
+        <server.exec.name>gnatsd</server.exec.name>
+        <server.exec.pkg>${server.exec.name}-v${server.version}-${nats.os}-${nats.arch}</server.exec.pkg>
+        <server.exec.pkg.url>https://github.com/nats-io/${server.exec.name}/releases/download/v${server.version}/${server.exec.pkg}.zip</server.exec.pkg.url>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration />
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <configuration>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>prepare</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <target xmlns:unless="ant:unless"
+                                xmlns:if="ant:if" name="copy-server-exec"
+                                unless:true="${server.installed}">
+                                <condition property="server.installed"
+                                    else="false">
+                                    <available file="${server.exec.name}"
+                                        filepath="${project.build.directory}"
+                                        type="file" />
+                                </condition>
+                                <echo if:true="${server.installed}"
+                                    message="${server.exec.name} is already installed. Skipping download..." />
+                                <echo unless:true="${server.installed}"
+                                    message="Installing ${server.exec.pkg} as ${project.build.directory}/${server.exec.name}..." />
+                                <get unless:true="${server.installed}"
+                                    src="${server.exec.pkg.url}" dest="${project.build.directory}"
+                                    skipexisting="true" />
+                                <unzip unless:true="${server.installed}"
+                                    src="${project.build.directory}/${server.exec.pkg}.zip"
+                                    dest="${project.build.directory}"
+                                    overwrite="false" />
+                                <move unless:true="${server.installed}"
+                                    file="${project.build.directory}/${server.exec.pkg}/${server.exec.name}"
+                                    tofile="${project.build.directory}/${server.exec.name}"
+                                    overwrite="false" />
+                                <chmod perm="+x"
+                                    file="${project.build.directory}/${server.exec.name}" />
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!-- This plugin takes care of packaging the artifact as 
+                    an OSGi Bundle -->
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <!-- Prepares the property pointing to the JaCoCo runtime 
+                        agent which is passed as VM argument when Maven the Surefire plugin is executed. -->
+                    <execution>
+                        <id>pre-unit-test</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Sets the path to the file which contains 
+                                the execution data. -->
+                            <destFile>${jacoco.ut.execution.data.file}</destFile>
+                            <!-- Sets the name of the property containing 
+                                the settings for JaCoCo runtime agent. -->
+                            <propertyName>surefireArgLine</propertyName>
+                        </configuration>
+                    </execution>
+                    <!-- Ensures that the code coverage report for unit tests 
+                        is created after unit tests have been run. -->
+                    <execution>
+                        <id>post-unit-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Sets the path to the file which contains 
+                                the execution data. -->
+                            <dataFile>${jacoco.ut.execution.data.file}</dataFile>
+                            <!-- Sets the output directory for the code coverage 
+                                report. -->
+                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
+                            <!-- Exclude example sources -->
+                        </configuration>
+                    </execution>
+                    <!-- Prepares the property pointing to the JaCoCo runtime 
+                        agent which is passed as VM argument when Maven the Failsafe plugin is executed. -->
+                    <execution>
+                        <id>pre-integration-test</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Sets the path to the file which contains 
+                                the execution data. -->
+                            <destFile>${jacoco.it.execution.data.file}</destFile>
+                            <!-- Sets the name of the property containing 
+                                the settings for JaCoCo runtime agent. -->
+                            <propertyName>failsafeArgLine</propertyName>
+                        </configuration>
+                    </execution>
+                    <!-- Ensures that the code coverage report for integration 
+                        tests after integration tests have been run. -->
+                    <execution>
+                        <id>post-integration-test</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Sets the path to the file which contains 
+                                the execution data. -->
+                            <dataFile>${jacoco.it.execution.data.file}</dataFile>
+                            <!-- Sets the output directory for the code coverage 
+                                report. -->
+                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-it</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Used for unit tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- Sets the VM argument line used when unit tests are 
+                        run. -->
+                    <argLine>${surefireArgLine}</argLine>
+                    <!-- Skips unit tests if the value of skip.unit.tests 
+                        property is true -->
+                    <skipTests>${skip.unit.tests}</skipTests>
+                    <!-- Excludes integration tests when unit tests are run. -->
+                    <excludes>
+                        <exclude>**/IT*.java</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>default-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skip.unit.tests}</skip>
+                            <groups>io.nats.connector.UnitTest</groups>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Used for integration tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <!-- Ensures that both integration-test and verify goals 
+                        of the Failsafe Maven plugin are executed. -->
+                    <execution>
+                        <id>integration-tests</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Sets the VM argument line used when integration 
+                                tests are run. -->
+                            <argLine>${failsafeArgLine}</argLine>
+
+                            <!-- Skips integration tests if the value of 
+                                skip.integration.tests property is true -->
+                            <skipTests>${skip.integration.tests}</skipTests>
+                            <groups>io.nats.client.IntegrationTest</groups>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <configuration>
+                    <sourceDirectories>
+                        <sourceDirectory>src/main/java</sourceDirectory>
+                        <sourceDirectory>examples</sourceDirectory>
+                    </sourceDirectories>
+                    <jacocoFile>${jacoco.ut.execution.data.file}</jacocoFile>
+                    <jacocoReports>
+                        <param>
+                            ${project.reporting.outputDirectory}/jacoco-ut/jacoco.xml
+                        </param>
+                    </jacocoReports>
+                    <coverageFile>${jacoco.ut.execution.data.file}</coverageFile>
+                    <sourceEncoding>${project.reporting.sourceEncoding}</sourceEncoding>
+                </configuration>
+                <!-- <executions> <execution> <id>travis-after-success</id> 
+                    <goals> <goal>report</goal> </goals> <configuration> <jacocoFile>${jacoco.ut.execution.data.file}</jacocoFile> 
+                    <jacocoReports>${jacoco.ut.execution.data.file}</jacocoReports> <coverageFile>${jacoco.ut.execution.data.file}</coverageFile> 
+                    <sourceEncoding>${project.reporting.sourceEncoding}</sourceEncoding> </configuration> 
+                    </execution> </executions> -->
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>examples</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>add-test-source</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/it/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.versioneye</groupId>
+                <artifactId>versioneye-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencyManagement />
+    <dependencies>
+        <dependency>
+            <groupId>io.nats</groupId>
+            <artifactId>jnats</artifactId>
+            <version>${jnats-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>

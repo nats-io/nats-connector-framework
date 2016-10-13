@@ -1,44 +1,39 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2016 Apcera Inc.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the MIT License (MIT)
- * which accompanies this distribution, and is available at
- * http://opensource.org/licenses/MIT
+ * Copyright (c) 2012, 2016 Apcera Inc. All rights reserved. This program and the accompanying
+ * materials are made available under the terms of the MIT License (MIT) which accompanies this
+ * distribution, and is available at http://opensource.org/licenses/MIT
  *******************************************************************************/
 
 package io.nats.connector.plugins.test;
 
 import io.nats.client.Connection;
-import io.nats.client.Message;
 import io.nats.client.ConnectionFactory;
+import io.nats.client.Message;
 import io.nats.client.MessageHandler;
-import io.nats.connector.Connector;
 import io.nats.connector.plugin.NATSConnector;
 import io.nats.connector.plugin.NATSConnectorPlugin;
 import io.nats.connector.plugin.NATSEvent;
+
 import org.slf4j.Logger;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class NATSTestPlugin implements NATSConnectorPlugin  {
+public class NATSTestPlugin implements NATSConnectorPlugin {
     NATSConnector connector = null;
     Logger logger = null;
 
     public NATSTestPlugin() {}
 
-    class PeriodicSender implements Runnable
-    {
+    class PeriodicSender implements Runnable {
         @Override
-        public void run()
-        {
+        public void run() {
             String s;
             int count = 2;
 
             // an override for debugging
             String countStr = System.getProperty("test.msgcount");
-            if (countStr != null && countStr.isEmpty() == false)
-            {
+            if (countStr != null && countStr.isEmpty() == false) {
                 count = Integer.parseInt(countStr);
             }
 
@@ -47,8 +42,7 @@ public class NATSTestPlugin implements NATSConnectorPlugin  {
             m.setSubject("foo");
             m.setReplyTo("bar");
 
-            for (int i = 0; i < count; i++)
-            {
+            for (int i = 0; i < count; i++) {
                 s = new String("Message-" + Integer.toString(i));
 
                 byte[] payload = s.getBytes();
@@ -59,8 +53,7 @@ public class NATSTestPlugin implements NATSConnectorPlugin  {
 
                 try {
                     connector.flush();
-                }
-                catch (Exception e){
+                } catch (Exception e) {
                     logger.error("Error with flush:  ", e);
                 }
 
@@ -82,8 +75,7 @@ public class NATSTestPlugin implements NATSConnectorPlugin  {
         return true;
     }
 
-    private void testConnectorAPIs() throws Exception
-    {
+    private void testConnectorAPIs() throws Exception {
         MessageHandler mh = new MessageHandler() {
             @Override
             public void onMessage(Message message) {
@@ -91,7 +83,7 @@ public class NATSTestPlugin implements NATSConnectorPlugin  {
             }
         };
 
-         // test various combinatitions of subscribes and unsubscribes.
+        // test various combinatitions of subscribes and unsubscribes.
         connector.subscribe("foo1");
         connector.subscribe("foo1");
 
@@ -124,25 +116,20 @@ public class NATSTestPlugin implements NATSConnectorPlugin  {
     }
 
     @Override
-    public boolean onNatsInitialized(NATSConnector connector)
-    {
+    public boolean onNatsInitialized(NATSConnector connector) {
         this.connector = connector;
 
         try {
             testConnectorAPIs();
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             return false;
         }
 
         logger.info("Starting up.");
 
-        try
-        {
+        try {
             connector.subscribe("foo");
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             logger.error("Unable to subscribe: ", ex);
             return false;
         }
@@ -154,15 +141,13 @@ public class NATSTestPlugin implements NATSConnectorPlugin  {
     }
 
     @Override
-    public void onShutdown()
-    {
+    public void onShutdown() {
         connector.unsubscribe("foo");
         logger.info("Shutting down.");
     }
 
     @Override
-    public void onNATSMessage(io.nats.client.Message msg)
-    {
+    public void onNATSMessage(io.nats.client.Message msg) {
 
         logger.info("Received message: " + msg.toString());
 
@@ -170,24 +155,21 @@ public class NATSTestPlugin implements NATSConnectorPlugin  {
 
         byte[] reply = "reply".getBytes();
 
-        msg.setData(reply, 0, (int)reply.length);
+        msg.setData(reply, 0, (int) reply.length);
 
         connector.publish(msg);
 
         try {
             connector.flush();
             logger.info("Flushed.");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void onNATSEvent(NATSEvent event, String message)
-    {
-        switch (event)
-        {
+    public void onNATSEvent(NATSEvent event, String message) {
+        switch (event) {
             case ASYNC_ERROR:
                 logger.error("NATS Event Async error: " + message);
                 break;
