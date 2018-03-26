@@ -1,8 +1,7 @@
-[![Stories in Ready](https://badge.waffle.io/nats-io/nats-connector-framework.png?label=ready&title=Ready)](https://waffle.io/nats-io/nats-connector-framework)
 # NATS Connector Framework
 A pluggable [Java](http://www.java.com) based framework to bridge the [NATS messaging system](https://nats.io) and other technologies.
 
-[![License MIT](https://img.shields.io/npm/l/express.svg)](http://opensource.org/licenses/MIT)
+[![License Apache 2.0](https://img.shields.io/badge/License-Apache2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Build Status](https://travis-ci.org/nats-io/nats-connector-framework.svg?branch=master)](http://travis-ci.org/nats-io/nats-connector-framework)
 [![Javadoc](http://javadoc-badge.appspot.com/io.nats/nats-connector-framework.svg?label=javadoc)](http://nats-io.github.io/nats-connector-framework)
 [![Coverage Status](https://coveralls.io/repos/github/nats-io/nats-connector-framework/badge.svg?branch=master)](https://coveralls.io/github/nats-io/nats-connector-framework?branch=master)
@@ -11,7 +10,7 @@ A pluggable [Java](http://www.java.com) based framework to bridge the [NATS mess
 
 The NATS connector framework is provided to facilitate the bridging of NATS and other technologies with an easy to use plug-in driven framework.  General application tasks and NATS connectivity are implemented, allowing a developer to focus on integration rather than application development tasks.  The java platform was chosen as to reach as many technologies as possible.
 
-Some connector types will be provided and maintained by Apcera.
+Some connector types will be provided and maintained by the NATS team.
 
 Documentation can be found [here](http://nats-io.github.io/nats-connector-framework).
 
@@ -84,7 +83,7 @@ mvn verify package
 
 * io.nats.connector - Connector application and data flow management
 * io.nats.connector.plugin - Interfaces, Classes, and Enums used by plugin developers.
-* io.nats.connector.plugins - Out of the box plugins, developed by Apcera.
+* io.nats.connector.plugins - Out of the box plugins, developed by the NATS team.
 
 ## Configuration
 NATS configuration is set through the jnats client library properties and can be passed into the jvm, or specified in a configuration file.  The properties are described [here](http://nats-io.github.io/jnats/io/nats/client/Constants.html).
@@ -113,14 +112,14 @@ java -Dio.nats.connector.plugin=<plugin class name> io.nats.connector.Connector
 
 If not using maven, ensure your classpath includes the most current nats-connector-framework and jnats archives, as well as java archives compatible with commons-pool2-2.4.2.jar, slf4j-simple-1.7.14.jar, slf4j-api-1.7.14.jar, jnats-0.3.1.jar, and json-20151123.jar.
 
-## Apcera Supported Plugins
+## Supported Plugins
 
 * [Redis Publish/Subscribe](https://github.com/nats-io/nats-connector-redis)
 
 ## Contributing
 Contributing is easy - develop a connector and provide us link to your repository through one of our [communication channels](http://www.nats.io/community).  We highly suggest you join the NATS slack community!
 
-Using the framework is optional - you can develop a connector in your technology of preference.  An accepted connector will get you a limited edition NATS hoodie!
+Using the framework is optional - you can develop a connector in your technology of preference.
 
 ### Guidelines for Acceptance
 
@@ -129,7 +128,7 @@ Using the framework is optional - you can develop a connector in your technology
  - Be configurable, but not overly so.
  - Provide logging/tracing to assist debugging.
  - Unit tests are encouraged and will help accelerate the review process of your connector.
- - MIT licenses are preferred.
+ - Apache 2.0 license is required if a plugin is to be maintained by NATS.
 
 Please see our [webinar](https://www.youtube.com/watch?v=eEaZw1lc_p8) about developing and contributing NATS connectors.
 
@@ -292,7 +291,7 @@ public interface NATSConnector {
 ### Connector
 - [X] Travis CI
 - [ ] Differentiate input and output plugins.
-- [X] Remove dependency chain on Apcera supported plugins.
+- [X] Remove dependency chain on supported plugins.
 - [ ] RabbitMQ plugin
 - [ ] Kafka Plugin
 - [ ] Create containers
@@ -308,3 +307,8 @@ public interface NATSConnector {
 * [IBM MQ](http://www-01.ibm.com/support/knowledgecenter/SSFKSJ_7.5.0/com.ibm.mq.dev.doc/q030520_.htm)
 
 Suggestions and implementations are always welcome!
+
+## License
+
+Unless otherwise noted, the NATS source files are distributed
+under the Apache Version 2.0 license found in the LICENSE file.
